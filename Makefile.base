@@ -1,0 +1,101 @@
+# v1.5.0    2016-06-11     webmaster@highskillz.com
+
+DH_ID_base=ez123/ops-base
+
+# --------------------------------------------------------------------------
+check-env-base:
+	test -n "$(TAG_VERSION)"   # TAG_VERSION.base
+	test -n "$(TIMESTAMP)"     # TIMESTAMP.base
+
+# --------------------------------------------------------------------------
+build-base: build-alpine-base build-ubuntu-base
+
+build-alpine-base: check-env-base
+	cd $(THIS_DIR)src.base ;\
+	docker build $(BUILD_CACHE) -f Dockerfile.alpine \
+			-t $(DH_ID_base):alpine \
+			-t $(DH_ID_base):alpine-${TAG_VERSION} \
+			-t $(DH_ID_base):alpine34 \
+			-t $(DH_ID_base):alpine34-${TAG_VERSION} \
+			. \
+		| tee /tmp/docker-ops-provision.alpine-base.log \
+		;\
+
+build-ubuntu-base: build-ubuntu-base-1404 build-ubuntu-base-1604
+
+build-ubuntu-base-1404: check-env-base
+	cd $(THIS_DIR)src.base ; \
+	docker build $(BUILD_CACHE) -f Dockerfile.1404 \
+			-t $(DH_ID_base):ubuntu1404 \
+			-t $(DH_ID_base):ubuntu1404-${TAG_VERSION} \
+			. \
+		| tee /tmp/docker-ops-provision.ubuntu-base-1404.log \
+		;\
+
+build-ubuntu-base-1604: check-env-base
+	cd $(THIS_DIR)src.base ; \
+	docker build $(BUILD_CACHE) -f Dockerfile.1604 \
+			-t $(DH_ID_base):ubuntu \
+			-t $(DH_ID_base):ubuntu-${TAG_VERSION} \
+			-t $(DH_ID_base):ubuntu1604 \
+			-t $(DH_ID_base):ubuntu1604-${TAG_VERSION} \
+			. \
+		| tee /tmp/docker-ops-provision.ubuntu-base-1604.log \
+		;\
+
+
+# --------------------------------------------------------------------------
+pull-base: pull-alpine-base pull-ubuntu-base
+
+pull-alpine-base: check-env-base
+	docker pull $(DH_ID_base):alpine
+	docker pull $(DH_ID_base):alpine34
+
+pull-ubuntu-base:
+	docker pull $(DH_ID_base):ubuntu
+	docker pull $(DH_ID_base):ubuntu1404
+	docker pull $(DH_ID_base):ubuntu1604
+
+# --------------------------------------------------------------------------
+push-base: push-alpine-base push-ubuntu-base
+
+push-alpine-base: check-env-base
+	docker push $(DH_ID_base):alpine
+	docker push $(DH_ID_base):alpine34
+	docker push $(DH_ID_base):alpine-${TAG_VERSION}
+	docker push $(DH_ID_base):alpine34-${TAG_VERSION}
+
+push-ubuntu-base: check-env-base
+	docker push $(DH_ID_base):ubuntu
+	docker push $(DH_ID_base):ubuntu1404
+	docker push $(DH_ID_base):ubuntu1604
+	docker push $(DH_ID_base):ubuntu1404-${TAG_VERSION}
+	docker push $(DH_ID_base):ubuntu1604-${TAG_VERSION}
+	docker push $(DH_ID_base):ubuntu-${TAG_VERSION}
+	docker push $(DH_ID_base):ubuntu1404
+	docker push $(DH_ID_base):ubuntu1604
+	docker push $(DH_ID_base):ubuntu1404-${TAG_VERSION}
+	docker push $(DH_ID_base):ubuntu1604-${TAG_VERSION}
+
+# --------------------------------------------------------------------------
+shell-alpine-base:
+	docker run -it --rm $(DH_ID_base):alpine bash
+
+shell-ubuntu1404-base:
+	docker run -it --rm $(DH_ID_base):ubuntu1404 bash
+
+shell-ubuntu1604-base:
+	docker run -it --rm $(DH_ID_base):ubuntu1604 bash
+
+# --------------------------------------------------------------------------
+test-base: test-alpine-base test-ubuntu-base
+test-ubuntu-base: test-ubuntu1404-base test-ubuntu1604-base
+
+test-alpine-base:
+	docker run -it --rm $(DH_ID_base):alpine
+
+test-ubuntu1404-base:
+	docker run -it --rm $(DH_ID_base):ubuntu1404
+
+test-ubuntu1604-base:
+	docker run -it --rm $(DH_ID_base):ubuntu1604

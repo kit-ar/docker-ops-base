@@ -1,0 +1,24 @@
+---
+language: python
+python:
+    - 2.7
+
+sudo: required
+
+services:
+ - docker
+
+env:
+    global:
+        DEBIAN_FRONTEND="noninteractive"
+
+install:
+  - echo "Dpkg::Options { \"--force-confdef\"; \"--force-confold\"; }" |sudo tee -a /etc/apt/apt.conf.d/local
+  - sudo apt-get install apt-transport-https ca-certificates
+  - curl -sSL https://get.docker.com/ | sudo sh
+  - sudo pip2 install --upgrade pip setuptools wheel docker-compose
+  - sudo docker-compose --version
+
+script:
+  - sudo make all
+  - sudo make test-base
