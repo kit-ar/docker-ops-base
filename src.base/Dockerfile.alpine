@@ -117,27 +117,8 @@ RUN \
        /var/cache/apk/* \
     && \
     \
-    echo "===> Adding hosts for convenience..."  && \
-    mkdir -p /etc/ansible                        && \
-    echo 'localhost' > /etc/ansible/hosts        && \
-    \
     echo "OK!"
 
-
-COPY ansible-playbook-wrapper /usr/local/bin/
-
-ONBUILD  RUN  \
-              echo "===> Updating TLS certificates..."         && \
-              apk --update add \
-              ca-certificates \
-              openssl \
-              ;
-
-ONBUILD  COPY  .  /tmp/ops
-ONBUILD  WORKDIR  /tmp/ops
-ONBUILD  RUN  \
-              echo "===> Diagnosis: host information..."  && \
-              ansible -c local -m setup all
 
 # default command: display Ansible version
 CMD \
