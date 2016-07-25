@@ -1,57 +1,40 @@
-# adapted from [ williamyeh/ansible:ubuntu14.04-onbuild ]
+# adapted from [ williamyeh/ansible:alpine3-onbuild ]
 # "ONBUILD version" because:
 # - updates some SSL stuff everytime is used in another image
 # - copies . to /tmp/ops
-#
-# added some improvements from [ https://github.com/timhaak/docker-base ]
 
-FROM ubuntu:16.04
+# pull base image
+FROM alpine:3.4
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
-ENV DEBIAN_FRONTEND="noninteractive"
+# golang is not installed in the alpine version
+
+# To preserve the behaviour of pip==pip2 we need to pay attention to
+# the order in which things are installed.
+# This is the reason for us to
+#       install pip3
+#       remove $(which pip), and then
+#       reinstall pip2
+# Nevertheless, we use pip2 on the rest of the script "just in case"
 
 RUN \
-    echo "===> Enabling Multiverse..."  && \
-    sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
-    \
-    echo "===> Speeding up apt and dpkg..."  && \
-    echo "force-unsafe-io"                 > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
-    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
-    \
-    echo "===> Initial packages update"  && \
-    apt-get    update  && \
-    apt-get -y install \
-          apt-transport-https \
-          lsb-release \
-          software-properties-common \
-    && \
-    \
-    echo "===> Adding PPAs..."  && \
-    add-apt-repository -y ppa:ansible/ansible && \
-    echo OFF: add-apt-repository -y ppa:brightbox/ruby-ng && \
-    apt-get    update  && \
-    \
     echo "===> Updating TLS certificates..."         && \
-    apt-get -y install \
+    apk --update add \
             ca-certificates \
             openssl \
-            ssl-cert \
     && \
-    \
-    echo "===> Upgrading distribution..."  && \
-    apt-get -y dist-upgrade && \
     \
     echo "===> Adding Python runtime..."  && \
-    apt-get -y install  \
-            python  python-pip \
-            python3 python3-pip \
-    && \
+    apk --update add \
+            python py-pip \
+            python3 \
+        && \
     echo "===> Adding usefull packages for devops shell-works..."  && \
-    apt-get -y install  \
+    apk --update add \
             openssh-client \
-            inetutils-ping \
             \
+            file \
             bash \
             less \
             nano \
@@ -59,43 +42,30 @@ RUN \
             curl \
             wget \
             \
-            realpath \
-            virt-what \
-            cpu-checker \
             zip \
-            xz-utils \
+            xz \
+            unrar \
             \
             git \
             \
             mc \
             mosh \
             screen \
-            dos2unix \
-            deborphan \
             \
             lsscsi \
             \
-            iotop \
             htop \
             atop \
             sysstat \
-            dstat \
             iftop \
-            ifstat \
-            bmon \
-            \
-            tcptrack \
-            iptraf \
-            nethogs \
             lsof \
-            procinfo \
             util-linux \
             mtr \
             \
             postgresql-client \
             mysql-client \
             \
-    && \
+        && \
     \
     echo "===> Configuring Python and PIP..."  && \
     pip3 install --upgrade pip setuptools wheel && \
@@ -106,6 +76,19 @@ RUN \
     echo Making sure pip is set to python2 && \
     pip --version | grep "python 2\."  && \
     \
+    echo OFF: apk --update add --virtual build-dependencies \
+            python-dev \
+            python3-dev \
+            openssl-dev \
+            build-base  \
+            libffi-dev \
+        && \
+    echo OFF: pip2 install --upgrade cffi && \
+    echo OFF: pip3 install --upgrade cffi && \
+    apk --update add \
+        py-cffi \
+    && \
+    \
     echo "Make sure we can run ansible's docker scripts" && \
     pip install --upgrade \
             docker-py \
@@ -113,29 +96,27 @@ RUN \
     && \
     \
     echo "===> Installing Ansible (2.1)..."  && \
-    apt-get -y install \
-            ansible \
+    apk --update add \
+        ansible \
     && \
     \
     echo "===> Installing NodeJS 6.x..."  && \
-    curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
-    apt-get -y install  \
-          nodejs \
+    apk --update add \
+            nodejs \
     && \
     \
     echo "===> Adding Ruby 2.x..."  && \
-    apt-get -y install  \
+    apk --update add \
             ruby \
     && \
     \
     echo "===> Cleaning up ..."  && \
-    apt-get autoremove --purge -y && \
-    apt-get clean              -y && \
+    echo OFF: apk del build-dependencies            && \
     rm -rf \
       "${HOME}/.cache" \
-        /var/lib/apt/lists/* \
-        /tmp/*               \
-        /var/tmp/*           \
+       /var/cache/apk/* \
+       /tmp/*               \
+       /var/tmp/*           \
     && \
     \
     echo "OK!"
@@ -143,7 +124,7 @@ RUN \
 
 # default command: display Ansible version
 CMD \
-    ansible-playbook --version | head -n 1 && \
+    ansible-playbook --version             && \
     python  --version          | head -n 1 && \
     python3 --version          | head -n 1 && \
     pip  --version             | head -n 1 && \

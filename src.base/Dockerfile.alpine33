@@ -4,7 +4,7 @@
 # - copies . to /tmp/ops
 
 # pull base image
-FROM alpine:3.4
+FROM alpine:3.3
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -28,7 +28,6 @@ RUN \
     echo "===> Adding Python runtime..."  && \
     apk --update add \
             python py-pip \
-            python3 \
         && \
     echo "===> Adding usefull packages for devops shell-works..."  && \
     apk --update add \
@@ -68,7 +67,6 @@ RUN \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
-    pip3 install --upgrade pip setuptools wheel && \
     pip2 install --upgrade pip setuptools wheel && \
     rm $(which pip) && \
     ln -s $(which pip2) /usr/local/bin/pip && \
@@ -78,13 +76,11 @@ RUN \
     \
     echo OFF: apk --update add --virtual build-dependencies \
             python-dev \
-            python3-dev \
             openssl-dev \
             build-base  \
             libffi-dev \
         && \
     echo OFF: pip2 install --upgrade cffi && \
-    echo OFF: pip3 install --upgrade cffi && \
     apk --update add \
         py-cffi \
     && \
@@ -95,7 +91,7 @@ RUN \
             docker-compose \
     && \
     \
-    echo "===> Installing Ansible..."  && \
+    echo "===> Installing Ansible (1.9)... "  && \
     apk --update add \
         ansible \
     && \
@@ -115,6 +111,8 @@ RUN \
     rm -rf \
       "${HOME}/.cache" \
        /var/cache/apk/* \
+       /tmp/*               \
+       /var/tmp/*           \
     && \
     \
     echo "OK!"
@@ -124,9 +122,7 @@ RUN \
 CMD \
     ansible-playbook --version             && \
     python  --version          | head -n 1 && \
-    python3 --version          | head -n 1 && \
     pip  --version             | head -n 1 && \
-    pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
     ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
