@@ -1,6 +1,6 @@
 # v2.1.0    2016-06-25     webmaster@highskillz.com
 
-TAG_VERSION=160725a
+TAG_VERSION=160729a
 
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TIMESTAMP=$(shell date +"%Y%m%d_%H%M%S")
@@ -27,7 +27,7 @@ pull-ubuntu: pull-ubuntu-base
 
 push: push-alpine push-ubuntu
 push-alpine: push-alpine-base
-push-ubuntu: push-ubuntu-base 
+push-ubuntu: push-ubuntu-base
 
 # --------------------------------------------------------------------------
 clean-junk:

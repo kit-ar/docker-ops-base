@@ -28,7 +28,7 @@ RUN \
     && \
     \
     echo "===> Adding PPAs..."  && \
-    add-apt-repository -y ppa:ansible/ansible-1.9 && \
+    add-apt-repository -y ppa:ansible/ansible && \
     add-apt-repository -y ppa:brightbox/ruby-ng && \
     apt-get    update  && \
     \

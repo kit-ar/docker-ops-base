@@ -18,6 +18,8 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #       reinstall pip2
 # Nevertheless, we use pip2 on the rest of the script "just in case"
 
+#ENV ansible_from_apk=1
+
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apk --update add \
@@ -76,28 +78,37 @@ RUN \
     echo Making sure pip is set to python2 && \
     pip --version | grep "python 2\."  && \
     \
-    echo OFF: apk --update add --virtual build-dependencies \
-            python-dev \
-            python3-dev \
-            openssl-dev \
-            build-base  \
-            libffi-dev \
-        && \
-    echo OFF: pip2 install --upgrade cffi && \
-    echo OFF: pip3 install --upgrade cffi && \
-    apk --update add \
-        py-cffi \
-    && \
-    \
     echo "Make sure we can run ansible's docker scripts" && \
     pip install --upgrade \
             docker-py \
             docker-compose \
     && \
     \
-    echo "===> Installing Ansible (2.1)..."  && \
-    apk --update add \
-        ansible \
+    ( \
+      if [ -z "${ansible_from_apk}" ]; then \
+        echo "===> Installing Ansible (2.1.1 via PIP)..." \
+        ; \
+        apk --update add --virtual build-dependencies \
+            python-dev \
+            build-base  \
+            openssl-dev \
+            libffi-dev \
+        ; \
+        pip2 install --upgrade \
+            cffi \
+            ansible  \
+        ; \
+        apk del build-dependencies \
+        ; \
+      else \
+        echo " ===> Installing Ansible (2.1 from apk)..." \
+        ; \
+        apk --update add \
+            py-cffi \
+            ansible \
+        ; \
+      fi \
+    ) \
     && \
     \
     echo "===> Installing NodeJS 6.x..."  && \
@@ -111,7 +122,6 @@ RUN \
     && \
     \
     echo "===> Cleaning up ..."  && \
-    echo OFF: apk del build-dependencies            && \
     rm -rf \
       "${HOME}/.cache" \
        /var/cache/apk/* \
@@ -120,7 +130,6 @@ RUN \
     && \
     \
     echo "OK!"
-
 
 # default command: display Ansible version
 CMD \
