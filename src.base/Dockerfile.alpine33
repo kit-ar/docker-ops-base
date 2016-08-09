@@ -126,4 +126,5 @@ CMD \
     node --version             | head -n 1 && \
     ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
+    docker-compose --version   | head -n 1 && \
     openssl version            | head -n 1
