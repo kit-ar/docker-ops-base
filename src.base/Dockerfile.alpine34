@@ -80,7 +80,7 @@ RUN \
     pip --version | grep "python 2\."  && \
     \
     echo "Make sure we can run ansible's docker scripts" && \
-    pip install --upgrade \
+    pip3 install --upgrade \
             docker-py \
             docker-compose \
     && \
