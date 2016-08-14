@@ -35,6 +35,7 @@ RUN \
     echo "===> Adding usefull packages for devops shell-works..."  && \
     apk --update add \
             openssh-client \
+            rsync \
             \
             file \
             bash \

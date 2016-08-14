@@ -51,6 +51,7 @@ RUN \
     apt-get -y install  \
             openssh-client \
             inetutils-ping \
+            rsync \
             \
             bash \
             less \
