@@ -3,7 +3,7 @@
 TAG_VERSION=160815a
 
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-TIMESTAMP=$(shell date +"%Y%m%d_%H%M%S")
+TIMESTAMP=$(shell date -u +"%Y%m%d_%H%M%S%Z")
 
 BUILD_CACHE=
 #BUILD_CACHE=--no-cache --force-rm
