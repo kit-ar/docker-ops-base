@@ -10,7 +10,7 @@ check-env-base:
 # --------------------------------------------------------------------------
 build-base: build-alpine-base build-ubuntu-base
 
-build-alpine-base: build-alpine-base-34 
+build-alpine-base: build-alpine-base-34
 
 build-alpine-base-34: check-env-base
 	cd $(THIS_DIR)src.base ;\
@@ -80,9 +80,6 @@ shell-alpine-base: shell-alpine-base34
 
 shell-alpine-base34:
 	docker run -it --rm $(DH_ID_base):alpine34 bash
-
-shell-alpine-base33:
-	docker run -it --rm $(DH_ID_base):alpine33 bash
 
 shell-ubuntu1604-base: shell-ubuntu-base
 
