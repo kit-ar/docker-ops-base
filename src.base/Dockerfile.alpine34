@@ -121,6 +121,10 @@ RUN \
     apk --update add \
             ruby \
     && \
+    echo "===> Adding docker-ssh-exec..."  && \
+    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+         tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
     \
     echo "===> Cleaning up ..."  && \
     rm -rf \
