@@ -36,6 +36,7 @@ RUN \
     apk --update add \
             openssh-client \
             rsync \
+            tar \
             \
             file \
             bash \
