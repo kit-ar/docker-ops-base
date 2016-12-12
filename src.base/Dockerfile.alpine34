@@ -88,7 +88,7 @@ RUN \
     \
     ( \
       if [ -z "${ansible_from_apk}" ]; then \
-        echo "===> Installing Ansible (2.1.1 via PIP)..." \
+        echo "===> Installing Ansible (via PIP)..." \
         ; \
         apk --update add --virtual build-dependencies \
             python-dev \
@@ -103,7 +103,7 @@ RUN \
         apk del build-dependencies \
         ; \
       else \
-        echo " ===> Installing Ansible (2.1 from apk)..." \
+        echo " ===> Installing Ansible (from apk)..." \
         ; \
         apk --update add \
             py-cffi \
