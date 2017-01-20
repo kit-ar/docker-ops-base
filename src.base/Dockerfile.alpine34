@@ -18,7 +18,8 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #       reinstall pip2
 # Nevertheless, we use pip2 on the rest of the script "just in case"
 
-#ENV ansible_from_apk=1
+ENV ansible_from_apk=0
+ENV PIP__ANSIBLE="ansible~=2.2"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -81,12 +82,6 @@ RUN \
     echo Making sure pip is set to python2 && \
     pip --version | grep "python 2\."  && \
     \
-    echo "Make sure we can run ansible's docker scripts" && \
-    pip3 install --upgrade \
-            docker-py \
-            docker-compose \
-    && \
-    \
     ( \
       if [ -z "${ansible_from_apk}" ]; then \
         echo "===> Installing Ansible (via PIP)..." \
@@ -99,7 +94,7 @@ RUN \
         ; \
         pip2 install --upgrade \
             cffi \
-            ansible  \
+            ${PIP__ANSIBLE} \
         ; \
         apk del build-dependencies \
         ; \
@@ -112,6 +107,12 @@ RUN \
         ; \
       fi \
     ) \
+    && \
+    \
+    echo "Make sure we can run ansible's docker scripts" && \
+    pip3 install --upgrade \
+            docker-py \
+            docker-compose \
     && \
     \
     echo "===> Installing NodeJS 6.x..."  && \

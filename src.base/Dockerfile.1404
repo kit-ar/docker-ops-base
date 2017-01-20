@@ -10,6 +10,7 @@ FROM ubuntu:14.04
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
 ENV DEBIAN_FRONTEND="noninteractive"
+ENV PIP__ANSIBLE="ansible~=2.2"
 
 RUN \
     echo "===> Enabling Multiverse..."  && \
@@ -28,7 +29,7 @@ RUN \
     && \
     \
     echo "===> Adding PPAs..."  && \
-    add-apt-repository -y ppa:ansible/ansible && \
+    echo OFF: add-apt-repository -y ppa:ansible/ansible && \
     add-apt-repository -y ppa:brightbox/ruby-ng && \
     apt-get    update  && \
     \
@@ -107,15 +108,20 @@ RUN \
     echo Making sure pip is set to python2 && \
     pip --version | grep "python 2\."  && \
     \
+    echo "===> Installing Ansible (via pip, to have control of installed version)..."  && \
+    apt-get -y install  \
+            libssl-dev libffi-dev \
+    && \
+    \
+    pip install --upgrade \
+            ${PIP__ANSIBLE} \
+    && \
+    \
     echo "Make sure we can run ansible's docker scripts" && \
     pip3 install --upgrade \
             docker-py \
             docker-compose \
-    && \
-    \
-    echo "===> Installing Ansible..."  && \
-    apt-get -y install \
-            ansible \
+            ansible-container \
     && \
     \
     echo "===> Installing NodeJS 6.x..."  && \
