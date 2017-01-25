@@ -18,7 +18,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #       reinstall pip2
 # Nevertheless, we use pip2 on the rest of the script "just in case"
 
-ENV ansible_from_apk=0
+ENV ANSIBLE_FROM_PIP=1
 ENV PIP__ANSIBLE="ansible~=2.2"
 
 RUN \
@@ -83,7 +83,14 @@ RUN \
     pip --version | grep "python 2\."  && \
     \
     ( \
-      if [ -z "${ansible_from_apk}" ]; then \
+      if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
+        echo " ===> Installing Ansible (from apk)..." \
+        ; \
+        apk --update add \
+            py-cffi \
+            ansible \
+        ; \
+      else \
         echo "===> Installing Ansible (via PIP)..." \
         ; \
         apk --update add --virtual build-dependencies \
@@ -97,13 +104,6 @@ RUN \
             ${PIP__ANSIBLE} \
         ; \
         apk del build-dependencies \
-        ; \
-      else \
-        echo " ===> Installing Ansible (from apk)..." \
-        ; \
-        apk --update add \
-            py-cffi \
-            ansible \
         ; \
       fi \
     ) \
