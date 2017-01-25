@@ -111,6 +111,7 @@ RUN \
     echo "===> Installing Ansible (via pip, to have control of installed version)..."  && \
     apt-get -y install  \
             libssl-dev libffi-dev \
+            python-dev \
     && \
     \
     pip install --upgrade \
