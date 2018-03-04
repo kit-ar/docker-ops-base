@@ -27,7 +27,6 @@ RUN \
     \
     echo "===> Adding Python runtime..."  && \
     apk --update add \
-            python py-pip \
             python3 \
         && \
     echo "===> Adding usefull packages for devops shell-works..."  && \
@@ -92,6 +91,10 @@ RUN \
         ; \
         pip3 install --upgrade \
             ${PIP__ANSIBLE} \
+            boto \
+            packaging \
+            ansible-lint \
+            openshift \
         ; \
         apk del build-dependencies \
         ; \
@@ -105,12 +108,12 @@ RUN \
             docker-compose \
     && \
     \
-    echo "===> Installing NodeJS 8.x..."  && \
+    echo "===> Installing NodeJS 8.9+..."  && \
     apk --update add \
             nodejs \
     && \
     \
-    echo "===> Adding Ruby 2.4.x..."  && \
+    echo "===> Adding Ruby 2.4+..."  && \
     apk --update add \
             ruby \
     && \

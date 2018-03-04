@@ -71,6 +71,7 @@ RUN \
             postgresql-client \
             mysql-client \
             \
+            py-cffi \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
@@ -87,7 +88,6 @@ RUN \
         echo " ===> Installing Ansible (from apk)..." \
         ; \
         apk --update add \
-            py-cffi \
             ansible \
         ; \
       else \
@@ -100,7 +100,6 @@ RUN \
             libffi-dev \
         ; \
         pip2 install --upgrade \
-            cffi \
             ${PIP__ANSIBLE} \
         ; \
         apk del build-dependencies \
