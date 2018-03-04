@@ -1,0 +1,141 @@
+# adapted from [ williamyeh/ansible:alpine3-onbuild ]
+# "ONBUILD version" because:
+# - updates some SSL stuff everytime is used in another image
+# - copies . to /tmp/ops
+
+# pull base image
+FROM alpine:edge
+
+MAINTAINER HighSkillz <webdev@highskillz.com>
+
+# golang is not installed in the alpine version
+
+# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
+# we no longer install/support python2 by default.
+# Also, we do not pretend pip will be available. Use pip3 instead.
+#
+
+ENV ANSIBLE_FROM_PIP=1
+ENV PIP__ANSIBLE="ansible~=2.5.0rc1"
+
+RUN \
+    echo "===> Updating TLS certificates..."         && \
+    apk --update add \
+            ca-certificates \
+            openssl \
+    && \
+    \
+    echo "===> Adding Python runtime..."  && \
+    apk --update add \
+            python py-pip \
+            python3 \
+        && \
+    echo "===> Adding usefull packages for devops shell-works..."  && \
+    apk --update add \
+            coreutils \
+            openssh-client \
+            rsync \
+            tar \
+            \
+            file \
+            bash \
+            less \
+            nano \
+            \
+            curl \
+            wget \
+            \
+            zip \
+            xz \
+            unrar \
+            \
+            git \
+            \
+            mc \
+            mosh \
+            screen \
+            \
+            lsscsi \
+            \
+            htop \
+            atop \
+            sysstat \
+            iftop \
+            lsof \
+            util-linux \
+            mtr \
+            \
+            postgresql-client \
+            mysql-client \
+            \
+            py3-cffi \
+        && \
+    \
+    echo "===> Configuring Python and PIP..."  && \
+    pip3 install --upgrade pip setuptools wheel && \
+    \
+    ( \
+      if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
+        echo " ===> Installing Ansible (from apk)..." \
+        ; \
+        apk --update add \
+            ansible \
+        ; \
+      else \
+        echo "===> Installing Ansible (via PIP)..." \
+        ; \
+        apk --update add --virtual build-dependencies \
+            python3-dev \
+            build-base  \
+            openssl-dev \
+            libffi-dev \
+        ; \
+        pip3 install --upgrade \
+            ${PIP__ANSIBLE} \
+        ; \
+        apk del build-dependencies \
+        ; \
+      fi \
+    ) \
+    && \
+    \
+    echo "Make sure we can run ansible's docker scripts" && \
+    pip3 install --upgrade \
+            docker-py \
+            docker-compose \
+    && \
+    \
+    echo "===> Installing NodeJS 8.9+..."  && \
+    apk --update add \
+            nodejs \
+    && \
+    \
+    echo "===> Adding Ruby 2.44+..."  && \
+    apk --update add \
+            ruby \
+    && \
+    echo "===> Adding docker-ssh-exec..."  && \
+    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+         tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
+    \
+    echo "===> Cleaning up ..."  && \
+    rm -rf \
+      "${HOME}/.cache" \
+       /var/cache/apk/* \
+       /tmp/*               \
+       /var/tmp/*           \
+    && \
+    \
+    echo "OK!"
+
+# default command: display Ansible version
+CMD \
+    ansible-playbook --version             && \
+    python3 --version          | head -n 1 && \
+    pip3 --version             | head -n 1 && \
+    node --version             | head -n 1 && \
+    ruby --version             | head -n 1 && \
+    git  --version             | head -n 1 && \
+    docker-compose --version   | head -n 1 && \
+    openssl version            | head -n 1
