@@ -1,4 +1,4 @@
-# v2.1.0    2016-06-25     webmaster@highskillz.com
+# v2.2.0    2018-03-04     webmaster@highskillz.com
 
 DH_ID_base=ez123/ops-base
 
@@ -24,6 +24,8 @@ build-alpine-base-34: check-env-base
 build-alpine-base-37: check-env-base
 	cd $(THIS_DIR)src.base ;\
 	docker build $(BUILD_CACHE) -f Dockerfile.alpine37 \
+			-t $(DH_ID_base):alpine \
+			-t $(DH_ID_base):alpine-${TAG_VERSION} \
 			-t $(DH_ID_base):alpine37 \
 			-t $(DH_ID_base):alpine37-${TAG_VERSION} \
 			. \
@@ -33,8 +35,6 @@ build-alpine-base-37: check-env-base
 build-alpine-base-edge: check-env-base
 	cd $(THIS_DIR)src.base ;\
 	docker build $(BUILD_CACHE) -f Dockerfile.alpineedge \
-			-t $(DH_ID_base):alpine \
-			-t $(DH_ID_base):alpine-${TAG_VERSION} \
 			-t $(DH_ID_base):alpineedge \
 			-t $(DH_ID_base):alpineedge-${TAG_VERSION} \
 			. \
@@ -82,12 +82,12 @@ push-base: push-alpine-base push-ubuntu-base
 
 push-alpine-base: check-env-base
 	docker push $(DH_ID_base):alpine
-	docker push $(DH_ID_base):alpine34
-	docker push $(DH_ID_base):alpine37
-	docker push $(DH_ID_base):alpineedge
 	docker push $(DH_ID_base):alpine-${TAG_VERSION}
+	docker push $(DH_ID_base):alpine34
 	docker push $(DH_ID_base):alpine34-${TAG_VERSION}
+	docker push $(DH_ID_base):alpine37
 	docker push $(DH_ID_base):alpine37-${TAG_VERSION}
+	docker push $(DH_ID_base):alpineedge
 	docker push $(DH_ID_base):alpineedge-${TAG_VERSION}
 
 push-ubuntu-base: check-env-base
