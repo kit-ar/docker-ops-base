@@ -125,7 +125,6 @@ RUN \
     pip3 install --upgrade \
             docker-py \
             docker-compose \
-            ansible-container \
     && \
     \
     echo "===> Installing NodeJS 6.x..."  && \
