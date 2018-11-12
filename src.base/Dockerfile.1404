@@ -12,6 +12,8 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE="ansible~=2.2"
 
+SHELL ["/bin/bash", "-c"]
+
 RUN \
     echo "===> Enabling Multiverse..."  && \
     sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \

@@ -18,6 +18,8 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 ENV ANSIBLE_FROM_PIP=1
 ENV PIP__ANSIBLE="ansible~=2.5.0rc1"
 
+SHELL ["/bin/bash", "-c"]
+
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apk --update add \
