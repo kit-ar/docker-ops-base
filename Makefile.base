@@ -1,4 +1,4 @@
-# v2.3.0    2018-03-04     webmaster@highskillz.com
+# v2.5.0    2018-11-12     webmaster@highskillz.com
 
 DH_ID_base=ez123/ops-base
 
@@ -10,7 +10,11 @@ check-env-base:
 # --------------------------------------------------------------------------
 build-base: build-alpine-base build-ubuntu-base
 
-build-alpine-base: build-alpine-base-34 build-alpine-base-37 build-alpine-base-38 build-alpine-base-38-ans27 build-alpine-base-edge
+build-alpine-base: build-alpine-base-34
+build-alpine-base: build-alpine-base-37
+build-alpine-base: build-alpine-base-38
+build-alpine-base: build-alpine-base-38-ans27
+build-alpine-base: build-alpine-base-edge
 
 build-alpine-base-34: check-env-base
 	cd $(THIS_DIR)src.base ;\
@@ -43,14 +47,13 @@ build-alpine-base-38-ans27: check-env-base
 	cd $(THIS_DIR)src.base ;\
 	docker build $(BUILD_CACHE) -f Dockerfile.alpine38-ans27 \
 			-t $(DH_ID_base):alpine \
-			-t $(DH_ID_base):alpine-${TAG_VERSION} \
 			-t $(DH_ID_base):alpine38-ans27 \
 			-t $(DH_ID_base):alpine38-ans27-${TAG_VERSION} \
 			. \
 		| tee /tmp/docker-ops-provision.alpine-base-38-ans27.log \
 		;\
 
-build-alpine-base-edge: check-env-base
+build-alpine-base-edge	: check-env-base
 	cd $(THIS_DIR)src.base ;\
 	docker build $(BUILD_CACHE) -f Dockerfile.alpineedge \
 			-t $(DH_ID_base):alpineedge \
@@ -59,7 +62,9 @@ build-alpine-base-edge: check-env-base
 		| tee /tmp/docker-ops-provision.alpine-base-edge.log \
 		;\
 
-build-ubuntu-base: build-ubuntu-base-1704-ans27 build-ubuntu-base-1604 build-ubuntu-base-1404
+build-ubuntu-base: build-ubuntu-base-1604-ans27
+build-ubuntu-base: build-ubuntu-base-1604
+build-ubuntu-base: build-ubuntu-base-1404
 
 build-ubuntu-base-1604-ans27: check-env-base
 	cd $(THIS_DIR)src.base ; \
@@ -118,11 +123,9 @@ push-alpine-base: check-env-base
 	docker push $(DH_ID_base):alpine37
 	docker push $(DH_ID_base):alpine37-${TAG_VERSION}
 	docker push $(DH_ID_base):alpine38
-	docker push $(DH_ID_base):alpine38s-${TAG_VERSION}
+	docker push $(DH_ID_base):alpine38-${TAG_VERSION}
 	docker push $(DH_ID_base):alpine38-ans27
 	docker push $(DH_ID_base):alpine38-ans27-${TAG_VERSION}
-	docker push $(DH_ID_base):alpine8
-	docker push $(DH_ID_base):alpine8-${TAG_VERSION}
 	docker push $(DH_ID_base):alpineedge
 	docker push $(DH_ID_base):alpineedge-${TAG_VERSION}
 

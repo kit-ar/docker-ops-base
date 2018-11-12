@@ -35,9 +35,11 @@ RUN \
             openssh-client \
             rsync \
             tar \
+            make \
             \
             file \
             bash \
+            bash-completion \
             less \
             nano \
             \
@@ -95,6 +97,8 @@ RUN \
             packaging \
             ansible-lint \
             openshift \
+            grpcio \
+            ansible[azure] \
         ; \
         apk del build-dependencies \
         ; \

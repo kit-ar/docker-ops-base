@@ -39,6 +39,7 @@ RUN \
             \
             file \
             bash \
+            bash-completion \
             less \
             nano \
             \
