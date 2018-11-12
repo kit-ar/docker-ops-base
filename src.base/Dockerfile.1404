@@ -53,8 +53,10 @@ RUN \
             openssh-client \
             inetutils-ping \
             rsync \
+            make \
             \
             bash \
+            bash-completion \
             less \
             nano \
             \

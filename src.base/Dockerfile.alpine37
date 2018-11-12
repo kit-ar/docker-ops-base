@@ -35,9 +35,11 @@ RUN \
             openssh-client \
             rsync \
             tar \
+            make \
             \
             file \
             bash \
+            bash-completion \
             less \
             nano \
             \
