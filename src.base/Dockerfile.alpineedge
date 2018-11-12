@@ -18,8 +18,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 ENV ANSIBLE_FROM_PIP=1
 ENV PIP__ANSIBLE="ansible"
 
-SHELL ["/bin/bash", "-c"]
-
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apk --update add \
@@ -101,17 +99,15 @@ RUN \
             openshift \
             grpcio \
             ansible[azure] \
+            \
+            # Make sure we can run ansible's docker scripts
+            docker \
+            docker-compose \
         ; \
         apk del build-dependencies \
         ; \
       fi \
     ) \
-    && \
-    \
-    echo "Make sure we can run ansible's docker scripts" && \
-    pip3 install --upgrade \
-            docker-py \
-            docker-compose \
     && \
     \
     echo "===> Installing NodeJS 8.9+..."  && \
@@ -137,6 +133,8 @@ RUN \
     && \
     \
     echo "OK!"
+
+SHELL ["/bin/bash", "-c"]
 
 # default command: display Ansible version
 CMD \

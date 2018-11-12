@@ -12,8 +12,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE="ansible~=2.2"
 
-SHELL ["/bin/bash", "-c"]
-
 RUN \
     echo "===> Enabling Multiverse..."  && \
     sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
@@ -120,11 +118,9 @@ RUN \
     \
     pip install --upgrade \
             ${PIP__ANSIBLE} \
-    && \
-    \
-    echo "Make sure we can run ansible's docker scripts" && \
-    pip3 install --upgrade \
-            docker-py \
+            \
+            # Make sure we can run ansible's docker scripts
+            docker \
             docker-compose \
     && \
     \
@@ -154,6 +150,8 @@ RUN \
     && \
     \
     echo "OK!"
+
+SHELL ["/bin/bash", "-c"]
 
 # default command: display Ansible version
 CMD \

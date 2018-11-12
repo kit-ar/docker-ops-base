@@ -21,8 +21,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 ENV ANSIBLE_FROM_PIP=1
 ENV PIP__ANSIBLE="ansible~=2.2"
 
-SHELL ["/bin/bash", "-c"]
-
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apk --update add \
@@ -105,17 +103,15 @@ RUN \
         ; \
         pip2 install --upgrade \
             ${PIP__ANSIBLE} \
+            \
+            # Make sure we can run ansible's docker scripts
+            docker \
+            docker-compose \
         ; \
         apk del build-dependencies \
         ; \
       fi \
     ) \
-    && \
-    \
-    echo "Make sure we can run ansible's docker scripts" && \
-    pip3 install --upgrade \
-            docker-py \
-            docker-compose \
     && \
     \
     echo "===> Installing NodeJS 6.x..."  && \
@@ -141,6 +137,8 @@ RUN \
     && \
     \
     echo "OK!"
+
+SHELL ["/bin/bash", "-c"]
 
 # default command: display Ansible version
 CMD \

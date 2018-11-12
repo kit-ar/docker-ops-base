@@ -12,8 +12,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE="ansible~=2.7"
 
-SHELL ["/bin/bash", "-c"]
-
 RUN \
     echo "===> Enabling Multiverse..."  && \
     sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
@@ -47,7 +45,7 @@ RUN \
     \
     echo "===> Adding Python runtime..."  && \
     apt-get -y install  \
-            python  python-pip \
+        #     python  python-pip \
             python3 python3-pip \
     && \
     echo "===> Adding usefull packages for devops shell-works..."  && \
@@ -103,21 +101,23 @@ RUN \
             \
     && \
     \
-    echo "===> Configuring Python and PIP..."  && \
-    pip3 install --upgrade pip setuptools wheel && \
-    pip2 install --upgrade pip setuptools wheel && \
-    rm $(which pip) && \
-    ln -s $(which pip2) /usr/local/bin/pip && \
-    \
-    echo Making sure pip is set to python2 && \
-    pip --version | grep "python 2\."  && \
+    echo "===> PIP3 has some issues ..."  && \
+    pip3 install --upgrade setuptools wheel && \
+#     echo "===> Configuring Python and PIP..."  && \
+#     pip3 install --upgrade pip setuptools wheel && \
+# #     pip2 install --upgrade pip setuptools wheel && \
+# #     rm $(which pip) && \
+# #     ln -s $(which pip2) /usr/local/bin/pip && \
+# #     \
+# #     echo Making sure pip is set to python2 && \
+# #     pip --version | grep "python 2\."  && \
     \
     echo "===> Installing Ansible (via pip, to have control of installed version)..."  && \
     apt-get -y install  \
             libssl-dev libffi-dev \
     && \
     \
-    pip install --upgrade \
+    pip3 install --upgrade \
             ${PIP__ANSIBLE} \
             boto \
             packaging \
@@ -125,11 +125,9 @@ RUN \
             openshift \
             grpcio \
             ansible[azure] \
-    && \
-    \
-    echo "Make sure we can run ansible's docker scripts" && \
-    pip3 install --upgrade \
-            docker-py \
+            \
+            # Make sure we can run ansible's docker scripts
+            docker \
             docker-compose \
     && \
     \
@@ -160,12 +158,14 @@ RUN \
     \
     echo "OK!"
 
+SHELL ["/bin/bash", "-c"]
+
 # default command: display Ansible version
 CMD \
     ansible-playbook --version | head -n 1 && \
-    python  --version          | head -n 1 && \
+#     python  --version          | head -n 1 && \
     python3 --version          | head -n 1 && \
-    pip  --version             | head -n 1 && \
+#     pip  --version             | head -n 1 && \
     pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
     ruby --version             | head -n 1 && \

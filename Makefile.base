@@ -10,20 +10,11 @@ check-env-base:
 # --------------------------------------------------------------------------
 build-base: build-alpine-base build-ubuntu-base
 
-build-alpine-base: build-alpine-base-34
-build-alpine-base: build-alpine-base-37
-build-alpine-base: build-alpine-base-38
-build-alpine-base: build-alpine-base-38-ans27
-build-alpine-base: build-alpine-base-edge
-
-build-alpine-base-34: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.alpine34 \
-			-t $(DH_ID_base):alpine34 \
-			-t $(DH_ID_base):alpine34-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.alpine-base-34.log \
-		;\
+build-alpine-base: \
+	build-alpine-base-edge \
+	build-alpine-base-38-ans27 \
+	build-alpine-base-38 \
+	build-alpine-base-37
 
 build-alpine-base-37: check-env-base
 	cd $(THIS_DIR)src.base ;\
@@ -62,15 +53,15 @@ build-alpine-base-edge	: check-env-base
 		| tee /tmp/docker-ops-provision.alpine-base-edge.log \
 		;\
 
-build-ubuntu-base: build-ubuntu-base-1604-ans27
-build-ubuntu-base: build-ubuntu-base-1604
-build-ubuntu-base: build-ubuntu-base-1404
+build-ubuntu-base: \
+	build-ubuntu-base-1604-ans27 \
+	build-ubuntu-base-1604 \
+	build-ubuntu-base-1404
 
 build-ubuntu-base-1604-ans27: check-env-base
 	cd $(THIS_DIR)src.base ; \
 	docker build $(BUILD_CACHE) -f Dockerfile.1604-ans27 \
 			-t $(DH_ID_base):ubuntu \
-			-t $(DH_ID_base):ubuntu-${TAG_VERSION} \
 			-t $(DH_ID_base):ubuntu1604-ans27 \
 			-t $(DH_ID_base):ubuntu1604-ans27-${TAG_VERSION} \
 			. \
@@ -100,7 +91,6 @@ pull-base: pull-alpine-base pull-ubuntu-base
 
 pull-alpine-base: check-env-base
 	docker pull $(DH_ID_base):alpine
-	docker pull $(DH_ID_base):alpine34
 	docker pull $(DH_ID_base):alpine37
 	docker pull $(DH_ID_base):alpine38
 	docker pull $(DH_ID_base):alpine38-ans27
@@ -117,33 +107,26 @@ push-base: push-alpine-base push-ubuntu-base
 
 push-alpine-base: check-env-base
 	docker push $(DH_ID_base):alpine
-	docker push $(DH_ID_base):alpine-${TAG_VERSION}
-	docker push $(DH_ID_base):alpine34
-	docker push $(DH_ID_base):alpine34-${TAG_VERSION}
-	docker push $(DH_ID_base):alpine37
-	docker push $(DH_ID_base):alpine37-${TAG_VERSION}
-	docker push $(DH_ID_base):alpine38
-	docker push $(DH_ID_base):alpine38-${TAG_VERSION}
-	docker push $(DH_ID_base):alpine38-ans27
-	docker push $(DH_ID_base):alpine38-ans27-${TAG_VERSION}
 	docker push $(DH_ID_base):alpineedge
 	docker push $(DH_ID_base):alpineedge-${TAG_VERSION}
+	docker push $(DH_ID_base):alpine38-ans27
+	docker push $(DH_ID_base):alpine38-ans27-${TAG_VERSION}
+	docker push $(DH_ID_base):alpine38
+	docker push $(DH_ID_base):alpine38-${TAG_VERSION}
+	docker push $(DH_ID_base):alpine37
+	docker push $(DH_ID_base):alpine37-${TAG_VERSION}
 
 push-ubuntu-base: check-env-base
 	docker push $(DH_ID_base):ubuntu
-	docker push $(DH_ID_base):ubuntu-${TAG_VERSION}
 	docker push $(DH_ID_base):ubuntu1604-ans27
+	docker push $(DH_ID_base):ubuntu1604-ans27-${TAG_VERSION}
 	docker push $(DH_ID_base):ubuntu1604
-	docker push $(DH_ID_base):ubuntu1404
-	docker push $(DH_ID_base):ubuntu1604-$ans27-{TAG_VERSION}
 	docker push $(DH_ID_base):ubuntu1604-${TAG_VERSION}
+	docker push $(DH_ID_base):ubuntu1404
 	docker push $(DH_ID_base):ubuntu1404-${TAG_VERSION}
 
 # --------------------------------------------------------------------------
 shell-alpine-base: shell-alpine-baseedge
-
-shell-alpine-base34:
-	docker run -it --rm $(DH_ID_base):alpine34 bash
 
 shell-alpine-base37:
 	docker run -it --rm $(DH_ID_base):alpine37 bash
@@ -170,12 +153,11 @@ shell-ubuntu1404-base:
 	docker run -it --rm $(DH_ID_base):ubuntu1404 bash
 
 # --------------------------------------------------------------------------
-test-base:        test-alpine-base     test-ubuntu-base
-test-alpine-base: test-alpine34-base   test-alpine37-base test-alpine38-base test-alpine38-ans27-base  test-alpineedge-base
+test-base:        \
+	test-alpine-base     \
+	test-ubuntu-base
+test-alpine-base: test-alpine37-base test-alpine38-base test-alpine38-ans27-base test-alpineedge-base
 test-ubuntu-base: test-ubuntu1404-base test-ubuntu1604-base test-ubuntu1604-ans27-base
-
-test-alpine34-base:
-	docker run -it --rm $(DH_ID_base):alpine34
 
 test-alpine37-base:
 	docker run -it --rm $(DH_ID_base):alpine37
