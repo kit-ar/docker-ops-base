@@ -41,6 +41,8 @@ RUN \
             tar \
             make \
             \
+            tini \
+            \
             file \
             bash \
             bash-completion \
