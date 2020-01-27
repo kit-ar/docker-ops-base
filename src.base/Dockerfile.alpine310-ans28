@@ -14,17 +14,15 @@ ENV PIP__ANSIBLE="ansible~=2.8"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
-    apk --update add \
+    apk --update --no-cache add \
             ca-certificates \
             openssl \
     && \
-    \
-    echo "===> Adding Python runtime..."  && \
-    apk --update add \
-            python3 \
-        && \
+    echo "..."
+
+RUN \
     echo "===> Adding usefull packages for devops shell-works..."  && \
-    apk --update add \
+    apk --update --no-cache add \
             coreutils \
             openssh-client \
             rsync \
@@ -61,72 +59,91 @@ RUN \
             lsof \
             util-linux \
             mtr \
-            \
-            postgresql-client \
-            mysql-client \
-            \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Adding Python runtime..."  && \
+    apk --update --no-cache add \
+            python3 \
             py3-cffi \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
     pip3 install --upgrade pip setuptools wheel && \
-    \
-    ( \
-      if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
-        echo " ===> Installing Ansible (from apk)..." \
+    echo "..."
+
+RUN \
+    echo "===> DB clients..."  && \
+    apk --update --no-cache add \
+            postgresql-client \
+            mysql-client \
         && \
-        apk --update add \
-            ansible \
-        ; \
-      else \
-        echo "===> Installing Ansible (via PIP)..." \
-        && \
-        apk --update add --virtual build-dependencies \
-            python3-dev \
-            build-base  \
-            openssl-dev \
-            libffi-dev \
-        && \
-        pip3 install --upgrade \
-            boto \
-            packaging \
-            openshift \
-            grpcio \
-            \
-            # Make sure we can run ansible's docker scripts
-            docker \
-            docker-compose \
-        && \
-        pip3 install --upgrade \
-            ${PIP__ANSIBLE} \
-            ansible-lint \
-            \
-            ansible[azure] \
-            azure-cli \
-            \
-            awscli \
-            s3cmd \
-            \
-            python-magic \
-        && \
-        apk del build-dependencies \
-        ; \
-      fi \
-    ) \
-    && \
-    \
-    echo "===> Installing NodeJS 10.16+..."  && \
-    apk --update add \
+    echo "..."
+
+RUN \
+    echo "===> Installing NodeJS 12.14+..."  && \
+    apk --update --no-cache add \
             nodejs \
-    && \
-    \
-    echo "===> Adding Ruby 2.5.7+..."  && \
-    apk --update add \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Adding Ruby 2.6.5+..."  && \
+    apk --update --no-cache add \
             ruby \
-    && \
+        && \
+    echo "..."
+
+RUN \
     echo "===> Adding docker-ssh-exec..."  && \
     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
          tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
+    echo "..."
+
+RUN \
+    if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
+        echo " ===> Installing Ansible (from apk)..." \
+        && \
+        apk --update --no-cache add \
+            ansible \
+        ; \
+    else \
+        echo "===> Installing Ansible (via PIP)..." \
+        && \
+        apk --update --no-cache add \
+            --virtual build-dependencies \
+                python3-dev \
+                build-base  \
+                openssl-dev \
+                libffi-dev \
+        && \
+            pip3 install --upgrade \
+                boto \
+                packaging \
+                openshift \
+                grpcio \
+                \
+                # Make sure we can run ansible's docker scripts
+                docker \
+                docker-compose \
+            && \
+            pip3 install --upgrade \
+                ${PIP__ANSIBLE} \
+                ansible-lint \
+                \
+                ansible[azure] \
+                azure-cli \
+                \
+                awscli \
+                s3cmd \
+                \
+                python-magic \
+            && \
+        apk del --update --no-cache build-dependencies \
+        ; \
+    fi \
     && \
     \
     echo "===> Cleaning up ..."  && \
