@@ -131,8 +131,8 @@ RUN \
             docker-compose \
     && \
     \
-    echo "===> Installing NodeJS 6.x..."  && \
-    curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
+    echo "===> Installing NodeJS 10.x..."  && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get -y install  \
           nodejs \
     && \
