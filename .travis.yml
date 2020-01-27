@@ -1,7 +1,5 @@
 ---
 language: python
-python:
-    - 2.7
 
 sudo: required
 
@@ -13,10 +11,11 @@ env:
         DEBIAN_FRONTEND="noninteractive"
 
 install:
-  - echo "Dpkg::Options { \"--force-confdef\"; \"--force-confold\"; }" |sudo tee -a /etc/apt/apt.conf.d/local
-  - sudo apt-get install apt-transport-https ca-certificates
-  - curl -sSL https://get.docker.com/ | sudo sh
-  - sudo pip2 install --upgrade pip setuptools wheel docker-compose
+  # - echo "Dpkg::Options { \"--force-confdef\"; \"--force-confold\"; }" |sudo tee -a /etc/apt/apt.conf.d/local
+  # - sudo apt-get install apt-transport-https ca-certificates
+  # - curl -sSL https://get.docker.com/ | sudo sh
+  # - sudo pip2 install --upgrade pip setuptools wheel docker-compose
+  - sudo docker-compose --version
   - sudo docker-compose --version
 
 script:
