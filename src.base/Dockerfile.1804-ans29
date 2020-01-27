@@ -10,7 +10,7 @@ FROM ubuntu:18.04 as final
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
 ENV DEBIAN_FRONTEND="noninteractive"
-ENV PIP__ANSIBLE="ansible~=2.9"
+ENV PIP__ANSIBLE="ansible~=2.9.0"
 
 RUN \
     echo "===> Enabling Multiverse..."  && \

@@ -13,7 +13,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 # Nevertheless, we use pip2 on the rest of the script "just in case"
 
 ENV ANSIBLE_FROM_PIP=1
-ENV PIP__ANSIBLE="ansible~=2.2"
+ENV PIP__ANSIBLE="ansible~=2.2.0"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
