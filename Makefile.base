@@ -86,8 +86,8 @@ build-alpine-base-edge	: check-env-base
 build-ubuntu-base: \
 	build-ubuntu-base-1804-ans29 \
 	build-ubuntu-base-1604-ans27 \
-	build-ubuntu-base-1604 \
-	build-ubuntu-base-1404
+	build-ubuntu-base-1604
+	# build-ubuntu-base-1404
 
 build-ubuntu-base-1804-ans29: check-env-base
 	cd $(THIS_DIR)src.base ; \
@@ -117,14 +117,14 @@ build-ubuntu-base-1604: check-env-base
 		| tee /tmp/docker-ops-provision.ubuntu-base-1604.log \
 		;\
 
-build-ubuntu-base-1404: check-env-base
-	cd $(THIS_DIR)src.base ; \
-	docker build $(BUILD_CACHE) -f Dockerfile.1404 \
-			-t $(DH_ID_base):ubuntu1404 \
-			-t $(DH_ID_base):ubuntu1404-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.ubuntu-base-1404.log \
-		;\
+# build-ubuntu-base-1404: check-env-base
+# 	cd $(THIS_DIR)src.base ; \
+# 	docker build $(BUILD_CACHE) -f Dockerfile.1404 \
+# 			-t $(DH_ID_base):ubuntu1404 \
+# 			-t $(DH_ID_base):ubuntu1404-${TAG_VERSION} \
+# 			. \
+# 		| tee /tmp/docker-ops-provision.ubuntu-base-1404.log \
+# 		;\
 
 # --------------------------------------------------------------------------
 pull-base: pull-alpine-base pull-ubuntu-base
@@ -144,7 +144,7 @@ pull-ubuntu-base:
 	docker pull $(DH_ID_base):ubuntu1804-ans29
 	docker pull $(DH_ID_base):ubuntu1604-ans27
 	docker pull $(DH_ID_base):ubuntu1604
-	docker pull $(DH_ID_base):ubuntu1404
+	# docker pull $(DH_ID_base):ubuntu1404
 
 # --------------------------------------------------------------------------
 push-base: push-alpine-base push-ubuntu-base
@@ -174,8 +174,8 @@ push-ubuntu-base: check-env-base
 	docker push $(DH_ID_base):ubuntu1604-ans27-${TAG_VERSION}
 	docker push $(DH_ID_base):ubuntu1604
 	docker push $(DH_ID_base):ubuntu1604-${TAG_VERSION}
-	docker push $(DH_ID_base):ubuntu1404
-	docker push $(DH_ID_base):ubuntu1404-${TAG_VERSION}
+	# docker push $(DH_ID_base):ubuntu1404
+	# docker push $(DH_ID_base):ubuntu1404-${TAG_VERSION}
 
 # --------------------------------------------------------------------------
 shell-alpine-base: shell-alpine-baseedge
@@ -213,15 +213,15 @@ shell-ubuntu1604-ans27-base:
 shell-ubuntu1604-base:
 	docker run -it --rm $(DH_ID_base):ubuntu1604 bash
 
-shell-ubuntu1404-base:
-	docker run -it --rm $(DH_ID_base):ubuntu1404 bash
+# shell-ubuntu1404-base:
+# 	docker run -it --rm $(DH_ID_base):ubuntu1404 bash
 
 # --------------------------------------------------------------------------
 test-base:        \
 	test-alpine-base     \
 	test-ubuntu-base
 test-alpine-base: test-alpine37-base test-alpine38-base test-alpine38-ans27-base test-alpine39-ans27-base test-alpine310-ans28-base test-alpine311-ans29-base test-alpineedge-base
-test-ubuntu-base: test-ubuntu1404-base test-ubuntu1604-base test-ubuntu1604-ans27-base test-ubuntu1804-ans29-base
+test-ubuntu-base: test-ubuntu1604-base test-ubuntu1604-ans27-base test-ubuntu1804-ans29-base
 
 test-alpineedge-base:
 	docker run -it --rm $(DH_ID_base):alpineedge
@@ -253,6 +253,6 @@ test-ubuntu1604-ans27-base:
 test-ubuntu1604-base:
 	docker run -it --rm $(DH_ID_base):ubuntu1604
 
-test-ubuntu1404-base:
-	docker run -it --rm $(DH_ID_base):ubuntu1404
+# test-ubuntu1404-base:
+# 	docker run -it --rm $(DH_ID_base):ubuntu1404
 
