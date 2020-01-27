@@ -1,9 +1,3 @@
-# adapted from [ williamyeh/ansible:alpine3-onbuild ]
-# "ONBUILD version" because:
-# - updates some SSL stuff everytime is used in another image
-# - copies . to /tmp/ops
-
-# pull base image
 FROM alpine:3.4
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
