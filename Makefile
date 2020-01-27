@@ -1,6 +1,6 @@
-# v2.2.0    2018-03-04     webmaster@highskillz.com
+# v2.3.0    2020-01-26     webmaster@highskillz.com
 
-TAG_VERSION=181112c
+TAG_VERSION=200126a
 
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TIMESTAMP=$(shell date -u +"%Y%m%d_%H%M%S%Z")
@@ -30,11 +30,6 @@ push-alpine: push-alpine-base
 push-ubuntu: push-ubuntu-base
 
 # --------------------------------------------------------------------------
-clean-junk:
-	docker rm        `docker ps -aq -f status=exited`      || true
-	docker rmi       `docker images -q -f dangling=true`   || true
-	docker volume rm `docker volume ls -qf dangling=true`  || true
-
 # clean-images:
 # 	docker rmi $(DH_ID_base):alpine  $(DH_ID):alpine   || true
 # 	docker rmi $(DH_ID_base):ubuntu  $(DH_ID):ubuntu   || true

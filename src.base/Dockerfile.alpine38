@@ -80,19 +80,19 @@ RUN \
     ( \
       if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
         echo " ===> Installing Ansible (from apk)..." \
-        ; \
+        && \
         apk --update add \
             ansible \
         ; \
       else \
         echo "===> Installing Ansible (via PIP)..." \
-        ; \
+        && \
         apk --update add --virtual build-dependencies \
             python3-dev \
             build-base  \
             openssl-dev \
             libffi-dev \
-        ; \
+        && \
         pip3 install --upgrade \
             ${PIP__ANSIBLE} \
             boto \
@@ -103,7 +103,7 @@ RUN \
             # Make sure we can run ansible's docker scripts
             docker \
             docker-compose \
-        ; \
+        && \
         apk del build-dependencies \
         ; \
       fi \

@@ -4,7 +4,7 @@
 # - copies . to /tmp/ops
 
 # pull base image
-FROM alpine:3.8
+FROM alpine:3.11
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -16,7 +16,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #
 
 ENV ANSIBLE_FROM_PIP=1
-ENV PIP__ANSIBLE="ansible~=2.7"
+ENV PIP__ANSIBLE="ansible~=2.9"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -94,17 +94,26 @@ RUN \
             libffi-dev \
         && \
         pip3 install --upgrade \
-            ${PIP__ANSIBLE} \
             boto \
             packaging \
-            ansible-lint \
             openshift \
             grpcio \
-            ansible[azure] \
             \
             # Make sure we can run ansible's docker scripts
             docker \
             docker-compose \
+        && \
+        pip3 install --upgrade \
+            ${PIP__ANSIBLE} \
+            ansible-lint \
+            \
+            ansible[azure] \
+            azure-cli \
+            \
+            awscli \
+            s3cmd \
+            \
+            python-magic \
         && \
         apk del build-dependencies \
         ; \
@@ -112,12 +121,12 @@ RUN \
     ) \
     && \
     \
-    echo "===> Installing NodeJS 8.9+..."  && \
+    echo "===> Installing NodeJS 12.14+..."  && \
     apk --update add \
             nodejs \
     && \
     \
-    echo "===> Adding Ruby 2.4+..."  && \
+    echo "===> Adding Ruby 2.6.5+..."  && \
     apk --update add \
             ruby \
     && \
@@ -146,5 +155,7 @@ CMD \
     node --version             | head -n 1 && \
     ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
+    az   --version             | head -n 1 && \
+    aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
     openssl version            | head -n 1
