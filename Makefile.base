@@ -96,8 +96,8 @@ build-ubuntu-base-1804-ans29: check-env-base
 			-t $(DH_ID_base):ubuntu1804-ans29 \
 			-t $(DH_ID_base):ubuntu1804-ans29-${TAG_VERSION} \
 			. \
-		| tee /tmp/docker-ops-provision.ubuntu-base-1804.log \
-		;\
+		| tee /tmp/docker-ops-provision.ubuntu-base-1804.log
+
 
 build-ubuntu-base-1604-ans27: check-env-base
 	cd $(THIS_DIR)src.base ; \

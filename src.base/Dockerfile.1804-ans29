@@ -157,19 +157,19 @@ RUN \
     \
     echo "OK!"
 
-FROM krallin/ubuntu-tini:18.04 as tini_src
+FROM krallin/ubuntu-tini:bionic as tini_src
 FROM final
 
-COPY --from=tini_src /usr/bin/tini* /usr/bin
+COPY --from=tini_src /usr/bin/tini* /usr/bin/
 RUN \
     echo "Symlinkng to /usr/local/bin" && \
     ln -s /usr/bin/tini        /usr/local/bin/tini && \
     ln -s /usr/bin/tini-static /usr/local/bin/tini-static && \
     echo "Running Smoke Test" && \
-    /usr/bin/tini -- ls && \
-    /usr/bin/tini-static -- ls && \
-    /usr/local/bin/tini -- ls && \
-    /usr/local/bin/tini-static -- ls && \
+    /usr/bin/tini -s -- ls && \
+    /usr/bin/tini-static -s -- ls && \
+    /usr/local/bin/tini -s -- ls && \
+    /usr/local/bin/tini-static -s -- ls && \
     echo "OK!"
 
 SHELL ["/bin/bash", "-c"]

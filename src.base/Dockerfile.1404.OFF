@@ -154,7 +154,7 @@ RUN \
 FROM krallin/ubuntu-tini:14.04 as tini_src
 FROM final
 
-COPY --from=tini_src /usr/bin/tini* /usr/bin
+COPY --from=tini_src /usr/bin/tini* /usr/bin/
 RUN \
     echo "Symlinkng to /usr/local/bin" && \
     ln -s /usr/bin/tini        /usr/local/bin/tini && \
