@@ -63,7 +63,6 @@ RUN \
             curl \
             wget \
             \
-            realpath \
             virt-what \
             cpu-checker \
             zip \
