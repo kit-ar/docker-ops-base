@@ -59,6 +59,7 @@ RUN \
             lsof \
             util-linux \
             mtr \
+            groff \
         && \
     echo "..."
 
