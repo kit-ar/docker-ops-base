@@ -94,6 +94,7 @@ RUN \
             procinfo \
             util-linux \
             mtr \
+            groff \
             \
             postgresql-client \
             mysql-client \
@@ -116,18 +117,26 @@ RUN \
             libssl-dev libffi-dev \
     && \
     \
-    pip3 install --upgrade \
-            ${PIP__ANSIBLE} \
+    pip3 install --upgrade --upgrade-strategy eager \
             boto \
             packaging \
-            ansible-lint \
             openshift \
             grpcio \
-            ansible[azure] \
             \
             # Make sure we can run ansible's docker scripts
             docker \
             docker-compose \
+            \
+            ${PIP__ANSIBLE} \
+            ansible-lint \
+            \
+            ansible[azure] \
+            azure-cli \
+            \
+            awscli \
+            s3cmd \
+            \
+            python-magic \
     && \
     \
     echo "===> Installing NodeJS 12.x..."  && \
@@ -184,5 +193,7 @@ CMD \
     node --version             | head -n 1 && \
     ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
+    az   --version             | head -n 1 && \
+    aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
     openssl version            | head -n 1

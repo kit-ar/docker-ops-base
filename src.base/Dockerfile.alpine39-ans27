@@ -120,7 +120,7 @@ RUN \
                 openssl-dev \
                 libffi-dev \
         && \
-            pip3 install --upgrade \
+            pip3 install --upgrade --upgrade-strategy eager \
                 boto \
                 packaging \
                 openshift \
@@ -129,8 +129,7 @@ RUN \
                 # Make sure we can run ansible's docker scripts
                 docker \
                 docker-compose \
-            && \
-            pip3 install --upgrade --upgrade-strategy eager \
+                \
                 ${PIP__ANSIBLE} \
                 ansible-lint \
                 \
