@@ -15,7 +15,7 @@ default: build
 include ./Makefile.base
 
 # --------------------------------------------------------------------------
-build: build-ubuntu
+build: all
 
 all: build-alpine build-ubuntu
 

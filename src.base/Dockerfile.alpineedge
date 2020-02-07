@@ -156,6 +156,9 @@ RUN \
        /var/tmp/*           \
     && \
     \
+    sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
+    && \
+    \
     echo "OK!"
 
 SHELL ["/bin/bash", "-c"]
