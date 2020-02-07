@@ -10,7 +10,7 @@ FROM ubuntu:16.04 as final
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
 ENV DEBIAN_FRONTEND="noninteractive"
-ENV PIP__ANSIBLE="ansible~=2.7.0"
+ENV PIP__ANSIBLE_VER="~=2.7.0"
 
 RUN \
     echo "===> Enabling Multiverse..."  && \
@@ -118,7 +118,7 @@ RUN \
     && \
     \
     pip3 install --upgrade \
-            ${PIP__ANSIBLE} \
+            ansible${PIP__ANSIBLE_VER} \
             boto \
             packaging \
             ansible-lint \

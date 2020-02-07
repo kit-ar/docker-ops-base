@@ -10,7 +10,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #
 
 ENV ANSIBLE_FROM_PIP=1
-ENV PIP__ANSIBLE="ansible~=2.8.0"
+ENV PIP__ANSIBLE_VER="~=2.8.0"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -132,7 +132,7 @@ RUN \
                 docker \
                 docker-compose \
                 \
-                ${PIP__ANSIBLE} \
+                ansible${PIP__ANSIBLE_VER} \
                 ansible-lint \
                 \
                 ansible[azure] \

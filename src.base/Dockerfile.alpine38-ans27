@@ -10,7 +10,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #
 
 ENV ANSIBLE_FROM_PIP=1
-ENV PIP__ANSIBLE="ansible~=2.7.0"
+ENV PIP__ANSIBLE_VER="~=2.7.0"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -88,7 +88,7 @@ RUN \
             libffi-dev \
         && \
         pip3 install --upgrade \
-            ${PIP__ANSIBLE} \
+            ansible${PIP__ANSIBLE_VER} \
             boto \
             packaging \
             ansible-lint \

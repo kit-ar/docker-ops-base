@@ -10,7 +10,7 @@ FROM ubuntu:18.04 as final
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
 ENV DEBIAN_FRONTEND="noninteractive"
-ENV PIP__ANSIBLE="ansible~=2.9.0"
+ENV PIP__ANSIBLE_VER="~=2.9.0"
 
 RUN \
     echo "===> Enabling Multiverse..."  && \
@@ -127,7 +127,7 @@ RUN \
             docker \
             docker-compose \
             \
-            ${PIP__ANSIBLE} \
+            ansible${PIP__ANSIBLE_VER} \
             ansible-lint \
             \
             ansible[azure] \
