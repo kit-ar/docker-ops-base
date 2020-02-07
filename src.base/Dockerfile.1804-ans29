@@ -130,7 +130,7 @@ RUN \
             ansible${PIP__ANSIBLE_VER} \
             ansible-lint \
             \
-            ansible[azure] \
+            ansible[azure]${PIP__ANSIBLE_VER} \
             azure-cli \
             \
             awscli \

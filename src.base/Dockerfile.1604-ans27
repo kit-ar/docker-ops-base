@@ -124,7 +124,7 @@ RUN \
             ansible-lint \
             openshift \
             grpcio \
-            ansible[azure] \
+            ansible[azure]${PIP__ANSIBLE_VER} \
             \
             # Make sure we can run ansible's docker scripts
             docker \
