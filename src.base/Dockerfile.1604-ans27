@@ -134,7 +134,10 @@ RUN \
     echo "===> Installing NodeJS 10.x..."  && \
     curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get -y install  \
-          nodejs npm yarn \
+          nodejs \
+    && \
+    npm i -g \
+        yarn \
     && \
     \
     echo "===> Adding Ruby 2.x..."  && \
