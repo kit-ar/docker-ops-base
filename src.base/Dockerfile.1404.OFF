@@ -127,7 +127,7 @@ RUN \
     echo "===> Installing NodeJS 8.x..."  && \
     curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
     apt-get -y install  \
-          nodejs \
+          nodejs npm yarn \
     && \
     \
     echo "===> Adding Ruby 2.x..."  && \

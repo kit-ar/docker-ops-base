@@ -142,7 +142,7 @@ RUN \
     echo "===> Installing NodeJS 12.x..."  && \
     curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt-get -y install  \
-          nodejs \
+          nodejs npm yarn \
     && \
     \
     echo "===> Adding Ruby 2.x..."  && \
