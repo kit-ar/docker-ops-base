@@ -12,7 +12,7 @@ BUILD_CACHE=
 
 default: build
 
-include ./Makefile.base
+include ./Makefile.base.make
 
 # --------------------------------------------------------------------------
 build: all

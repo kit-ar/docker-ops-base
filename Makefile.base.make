@@ -1,5 +1,8 @@
 # v2.6.0    2020-01-26     webmaster@highskillz.com
 
+# .ONESHELL:
+.SHELLFLAGS = -e
+
 DH_ID_base=ez123/ops-base
 
 # --------------------------------------------------------------------------
