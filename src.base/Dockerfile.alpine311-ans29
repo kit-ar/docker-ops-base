@@ -86,6 +86,8 @@ RUN \
     echo "===> Installing NodeJS 12.14+..."  && \
     apk --update --no-cache add \
             nodejs \
+            npm \
+            yarn \
         && \
     echo "..."
 
