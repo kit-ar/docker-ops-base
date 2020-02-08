@@ -87,18 +87,20 @@ RUN \
             openssl-dev \
             libffi-dev \
         && \
-        pip3 install --upgrade \
-            ansible${PIP__ANSIBLE_VER} \
+        pip3 install --upgrade --upgrade-strategy eager \
             boto \
             packaging \
-            ansible-lint \
             openshift \
-            grpcio \
-            ansible[azure]${PIP__ANSIBLE_VER} \
+            grpcio~=1.26.0 \
             \
             # Make sure we can run ansible's docker scripts
             docker \
             docker-compose \
+            \
+            ansible${PIP__ANSIBLE_VER} \
+            ansible-lint \
+                \
+            ansible[azure]${PIP__ANSIBLE_VER} \
         && \
         apk del build-dependencies \
         ; \
@@ -130,6 +132,7 @@ RUN \
     \
     sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
     && \
+    \
     echo "OK!"
 
 SHELL ["/bin/bash", "-c"]
