@@ -119,7 +119,9 @@ RUN \
     \
     echo "===> Installing NodeJS 8.9+..."  && \
     apk --update add \
-            nodejs npm yarn \
+            nodejs \
+            npm \
+            yarn \
     && \
     \
     echo "===> Adding Ruby 2.4+..."  && \
