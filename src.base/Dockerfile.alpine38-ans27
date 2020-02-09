@@ -38,10 +38,12 @@ RUN \
             bash-completion \
             less \
             nano \
+            jq \
             \
             curl \
             wget \
             \
+            virt-what \
             zip \
             xz \
             unrar \
@@ -51,16 +53,23 @@ RUN \
             mc \
             mosh \
             screen \
+            dos2unix \
             \
             lsscsi \
             \
+            iotop \
             htop \
             atop \
             sysstat \
             iftop \
+            bmon \
+            \
+            iptraf-ng \
+            nethogs \
             lsof \
             util-linux \
             mtr \
+            groff \
             \
             postgresql-client \
             mysql-client \
