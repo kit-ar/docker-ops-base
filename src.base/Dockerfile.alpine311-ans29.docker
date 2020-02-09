@@ -9,7 +9,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
 
-ENV ANSIBLE_FROM_PIP=1
 ENV PIP__ANSIBLE_VER="~=2.9.0"
 ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 
@@ -133,6 +132,7 @@ RUN \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
+    pip3 list &&\
     pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
         pip setuptools wheel \
         pip-tools \
