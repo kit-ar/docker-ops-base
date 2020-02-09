@@ -1,0 +1,229 @@
+FROM alpine:3.10 as final
+
+MAINTAINER HighSkillz <webdev@highskillz.com>
+
+# golang is not installed in the alpine version
+
+# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
+# we no longer install/support python2 by default.
+# Also, we do not pretend pip will be available. Use pip3 instead.
+#
+
+ENV ANSIBLE_FROM_PIP=1
+ENV PIP__ANSIBLE_VER="~=2.8.0"
+ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
+
+## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
+## uncomment if really needed
+# ENV PYHELM_PIP3=pyhelm
+
+RUN \
+    echo "===> Updating TLS certificates..."         && \
+    apk --update --no-cache add \
+            ca-certificates \
+            openssl \
+    && \
+    echo "..."
+
+RUN \
+    echo "===> Adding usefull packages for devops shell-works..."  && \
+    apk --update --no-cache add \
+            coreutils \
+            openssh-client \
+            rsync \
+            tar \
+            make \
+            \
+            tini \
+            \
+            file \
+            bash \
+            bash-completion \
+            less \
+            nano \
+            jq \
+            \
+            curl \
+            wget \
+            \
+            virt-what \
+            zip \
+            xz \
+            unrar \
+            \
+            git \
+            \
+            mc \
+            mosh \
+            ncdu \
+            screen \
+            dos2unix \
+            \
+            lsscsi \
+            \
+            iotop \
+            htop \
+            atop \
+            sysstat \
+            iftop \
+            bmon \
+            \
+            iptraf-ng \
+            nethogs \
+            lsof \
+            util-linux \
+            mtr \
+            groff \
+        && \
+    \
+    sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
+    && \
+    echo "..."
+SHELL ["/bin/bash", "-c"]
+
+RUN \
+    echo "===> DB clients..."  && \
+    apk --update --no-cache add \
+            postgresql-client \
+            mysql-client \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Installing NodeJS 12.14+..."  && \
+    apk --update --no-cache add \
+            nodejs \
+            npm \
+            yarn \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Adding Ruby 2.6.5+..."  && \
+    apk --update --no-cache add \
+            ruby \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Adding docker-ssh-exec..."  && \
+    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+         tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
+    echo "..."
+
+RUN \
+    echo "===> Adding Docker cli..."  && \
+    apk --update --no-cache add \
+            docker-cli \
+        && \
+    echo "..."
+
+#FROM alpine/helm:3.0.2 as int-helm
+FROM dtzar/helm-kubectl:3.0.2 as int-helm-kubectl
+
+FROM final
+COPY --from=int-helm-kubectl /usr/local/bin/helm    /usr/bin/helm
+COPY --from=int-helm-kubectl /usr/local/bin/kubectl /usr/bin/kubectl
+
+RUN \
+    echo "===> Adding Python runtime..."  && \
+    apk --update --no-cache add \
+            python3 \
+        && \
+    \
+    echo "===> Configuring Python and PIP..."  && \
+    pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
+        pip setuptools wheel \
+        pip-tools \
+    && \
+    pip3 list && \
+    echo "..."
+
+RUN \
+    apk --update --no-cache add \
+        --virtual build-dependencies \
+            python3-dev \
+            build-base  \
+            openssl-dev \
+            libffi-dev \
+    && \
+    pip3 list && \
+        echo "===> Installing Ansible (via PIP)..." \
+        echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
+        echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
+        echo "===> as of 2020-02-09, we could not find any other option..." \
+        echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
+        echo "===> Installing (ansible)..." && \
+        \
+        echo "===> Installing (py3-*) to speedup build in alpine..." && \
+        apk add --no-cache --update \
+            py3-jinja2 \
+            py3-markupsafe \
+            py3-cffi \
+            py3-cryptography \
+            py3-paramiko \
+            py3-pynacl \
+            py3-packaging \
+            py3-parsing \
+        && \
+        pip3 list && \
+        echo "===> Installing (ansible)..." && \
+        pip3 install --no-cache-dir \
+            ansible${PIP__ANSIBLE_VER} \
+        && \
+        pip3 list && \
+        echo "===> Installing (ansible[azure])..." && \
+        pip3 install --no-cache-dir \
+            ansible[azure]${PIP__ANSIBLE_VER} \
+        && \
+        pip3 list && \
+        echo "===> Installing (azure-cli)..." && \
+        pip3 install --no-cache-dir --upgrade ${PIP__UPGR_STRAT_X} \
+            azure-cli \
+        && \
+        pip3 list && \
+        echo "===> Installing other pip3 based tools..." && \
+        pip3 install --no-cache-dir \
+            boto \
+            \
+            openshift \
+            ${PYHELM_PIP3} \
+            \
+            docker \
+            docker-compose \
+            \
+            ansible-lint \
+            \
+            awscli \
+            s3cmd \
+            \
+            python-magic \
+        && \
+    pip3 list && \
+    apk del --update --no-cache build-dependencies \
+    && \
+    \
+    echo "===> Cleaning up ..."  && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/cache/apk/* \
+        /tmp/*           \
+        /var/tmp/*       \
+    && \
+    \
+    echo "OK!"
+
+
+# default command: display Ansible version
+CMD \
+    ansible-playbook --version             && \
+    python3 --version          | head -n 1 && \
+    pip3 --version             | head -n 1 && \
+    node --version             | head -n 1 && \
+    ruby --version             | head -n 1 && \
+    git  --version             | head -n 1 && \
+    az   --version             | head -n 1 && \
+    aws  --version             | head -n 1 && \
+    docker-compose --version   | head -n 1 && \
+    openssl version            | head -n 1

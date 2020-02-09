@@ -1,6 +1,6 @@
-FROM alpine:edge
+FROM alpine:edge as final
 
-MAINTAINER HighSkillz <webdev@highskillz.com>
+LABEL maintainer="webmaster@kit-ar.com"
 
 # golang is not installed in the alpine version
 
@@ -10,7 +10,13 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #
 
 ENV ANSIBLE_FROM_PIP=1
-ENV PIP__ANSIBLE_VER=""
+ENV PIP__ANSIBLE_VER=
+ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
+
+## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
+## uncomment if really needed
+# ENV PYHELM_PIP3=pyhelm
+# ENV PYHELM_APK_GRPCIO=py3-grpcio@testing
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -19,6 +25,9 @@ RUN \
             openssl \
         && \
     echo "..."
+
+RUN \
+    [ "${PYHELM_APK_GRPCIO}" == "" ] || echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 
 RUN \
     echo "===> Adding usefull packages for devops shell-works..."  && \
@@ -50,6 +59,7 @@ RUN \
             \
             mc \
             mosh \
+            ncdu \
             screen \
             dos2unix \
             \
@@ -69,18 +79,11 @@ RUN \
             mtr \
             groff \
         && \
-    echo "..."
-
-RUN \
-    echo "===> Adding Python runtime..."  && \
-    apk --update --no-cache add \
-            python3 \
-            py3-cffi \
-        && \
     \
-    echo "===> Configuring Python and PIP..."  && \
-    pip3 install --upgrade pip setuptools wheel && \
+    sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
+    &&\
     echo "..."
+SHELL ["/bin/bash", "-c"]
 
 RUN \
     echo "===> DB clients..."  && \
@@ -114,6 +117,34 @@ RUN \
     echo "..."
 
 RUN \
+    echo "===> Adding Docker cli..."  && \
+    apk --update --no-cache add \
+            docker-cli \
+        && \
+    echo "..."
+
+#FROM alpine/helm:3.0.2 as int-helm
+FROM dtzar/helm-kubectl:3.0.2 as int-helm-kubectl
+
+FROM final
+COPY --from=int-helm-kubectl /usr/local/bin/helm    /usr/bin/helm
+COPY --from=int-helm-kubectl /usr/local/bin/kubectl /usr/bin/kubectl
+
+RUN \
+    echo "===> Adding Python runtime..."  && \
+    apk --update --no-cache add \
+            python3 \
+        && \
+    \
+    echo "===> Configuring Python and PIP..."  && \
+    pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
+        pip setuptools wheel \
+        pip-tools \
+    && \
+    pip3 list &&\
+    echo "..."
+
+RUN \
     if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
         echo " ===> Installing Ansible (from apk)..." \
         && \
@@ -130,27 +161,63 @@ RUN \
                 openssl-dev \
                 libffi-dev \
         && \
-            pip3 install --upgrade --upgrade-strategy eager \
-                boto \
-                packaging \
-                openshift \
-                grpcio \
-                \
-                # Make sure we can run ansible's docker scripts
-                docker \
-                docker-compose \
-                \
+        pip3 list &&\
+        echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
+        echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
+        echo "===> as of 2020-02-09, we could not find any other option..." \
+        echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
+        echo "===> Installing (ansible)..." && \
+        \
+        echo "===> Installing (py3-*) to speedup build in alpine..." && \
+        apk add --no-cache --update \
+            py3-jinja2 \
+            py3-markupsafe \
+            py3-yaml \
+            py3-cffi \
+            py3-cryptography \
+            py3-paramiko \
+            py3-pynacl \
+            py3-packaging \
+            py3-parsing \
+            \
+            # grpcio is VERY VERY slow if installed from source !!!
+            # only needed for pyhelm
+            ${PYHELM_APK_GRPCIO} \
+        && \
+        pip3 list && \
+        echo "===> Installing (ansible)..." && \
+        pip3 install --no-cache-dir \
                 ansible${PIP__ANSIBLE_VER} \
-                ansible-lint \
-                \
-                ansible[azure]${PIP__ANSIBLE_VER} \
-                azure-cli \
-                \
-                awscli \
-                s3cmd \
-                \
-                python-magic \
             && \
+        pip3 list &&\
+        echo "===> Installing (ansible[azure])..." && \
+        pip3 install --no-cache-dir \
+            ansible[azure]${PIP__ANSIBLE_VER} \
+        && \
+        pip3 list &&\
+        echo "===> Installing (azure-cli)..." && \
+        pip3 install --no-cache-dir --upgrade ${PIP__UPGR_STRAT_X} \
+            azure-cli \
+        && \
+        pip3 list &&\
+        echo "===> Installing other pip3 based tools..." && \
+        pip3 install --no-cache-dir \
+            boto \
+            \
+            openshift \
+            ${PYHELM_PIP3} \
+            \
+            docker \
+            docker-compose \
+            \
+            ansible-lint \
+            \
+            awscli \
+            s3cmd \
+            \
+            python-magic \
+        && \
+        pip3 list && \
         apk del --update --no-cache build-dependencies \
         ; \
     fi \
@@ -164,12 +231,8 @@ RUN \
        /var/tmp/*           \
     && \
     \
-    sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
-    && \
-    \
     echo "OK!"
 
-SHELL ["/bin/bash", "-c"]
 
 # default command: display Ansible version
 CMD \

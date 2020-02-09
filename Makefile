@@ -1,5 +1,5 @@
 # v2.4.1    2020-02-07     webmaster@highskillz.com
-TAG_VERSION=200208a
+TAG_VERSION=200209k
 
 # .ONESHELL:
 .SHELLFLAGS = -e
@@ -12,6 +12,7 @@ BUILD_CACHE=
 
 default: build
 
+include ./Makefile.rules.make
 include ./Makefile.base.make
 
 # --------------------------------------------------------------------------

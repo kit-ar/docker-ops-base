@@ -1,11 +1,10 @@
-FROM ubuntu:18.04 as final
+FROM python:3.8-buster as final
 
-MAINTAINER HighSkillz <webdev@highskillz.com>
+LABEL maintainer="webmaster@kit-ar.com"
 
 ENV DEBIAN_FRONTEND="noninteractive"
-ENV APT__PYHTON3_VER="=3.6.*"
-ENV APT__PIP3_VER="=9.*"
-xENV PIP__ANSIBLE_VER="~=2.9.0"
+ENV PIP__ANSIBLE_VER="~=2.9.0"
+# ENV PIP__UPGR_STRAT=--upgrade-strategy eager
 
 RUN \
     echo "===> Enabling Multiverse..."  && \
@@ -31,15 +30,15 @@ RUN \
     apt-get    update  && \
     \
     echo "===> Updating TLS certificates..."         && \
-    apt-get -y install \
+    apt-get --no-install-recommends -y install \
             ca-certificates \
             openssl \
             ssl-cert \
     && \
-    #\
-    #echo "===> Upgrading distribution..."  && \
-    #apt-get -y dist-upgrade && \
-    #\
+    \
+    echo "===> Upgrading distribution..."  && \
+    apt-get --no-install-recommends -y dist-upgrade && \
+    \
     echo "===> Adding usefull packages for devops shell-works..."  && \
     apt-get -y install  \
             openssh-client \
@@ -64,7 +63,6 @@ RUN \
             \
             mc \
             mosh \
-            ncdu \
             screen \
             dos2unix \
             deborphan \
@@ -96,7 +94,7 @@ RUN \
     \
     echo "===> Installing NodeJS 12.x..."  && \
     curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
-    apt-get -y install  \
+    apt-get --no-install-recommends -y install  \
           nodejs \
     && \
     npm i -g \
@@ -104,7 +102,7 @@ RUN \
     && \
     \
     echo "===> Adding Ruby 2.x..."  && \
-    apt-get -y install  \
+    apt-get --no-install-recommends -y install  \
             ruby \
     && \
     echo "===> Adding docker-ssh-exec..."  && \
@@ -131,17 +129,11 @@ RUN \
 
 RUN \
     echo "===> PIP3 has an issue when upgraded to v18+..."  && \
-    pip3 list &&\
-    pip3 install --no-cache-dir --upgrade --upgrade-strategy eager --upgrade \
-    	setuptools wheel pip${PIP__PIP3_VER} \
-    && \
+    pip3 install --upgrade setuptools wheel pip${PIP__PIP3_VER} && \
     rm -rf /usr/bin/pip3 && \
     ln -s /usr/local/bin/pip3 /usr/bin/pip3 &&\
     \
-    pip3 list &&\
-    \
-    echo "===> Installing Ansible (via PIP)..." \
-    echo "===> as of 2020-02-09, these have to be installed in separate steps due to version conflicts..." \
+    echo "===> Installing Ansible (via pip, to have control of installed version)..."  && \
     # apt-get -y install  \
     #         libssl-dev libffi-dev \
     # && \
@@ -194,9 +186,6 @@ RUN \
     \
     echo "OK!"
 
-SHELL ["/bin/bash", "-c"]
-
-
 FROM krallin/ubuntu-tini:bionic as tini_src
 FROM final
 
@@ -211,6 +200,8 @@ RUN \
     /usr/local/bin/tini -s -- ls && \
     /usr/local/bin/tini-static -s -- ls && \
     echo "OK!"
+
+SHELL ["/bin/bash", "-c"]
 
 # default command: display Ansible version
 CMD \

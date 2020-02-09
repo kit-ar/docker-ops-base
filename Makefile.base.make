@@ -11,10 +11,11 @@ check-env-base:
 	test -n "$(TIMESTAMP)"     # TIMESTAMP.base
 
 # --------------------------------------------------------------------------
-build-base: build-alpine-base build-ubuntu-base
+build-base: build-alpine-base build-ubuntu-base build-deb-base
 
 build-alpine-base: \
 	build-alpine-base-edge \
+	build-alpine-base-311-ans29-py38 \
 	build-alpine-base-311-ans29 \
 	build-alpine-base-310-ans28 \
 	build-alpine-base-39-ans27 \
@@ -22,69 +23,19 @@ build-alpine-base: \
 	build-alpine-base-38 \
 	build-alpine-base-37
 
-build-alpine-base-37: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.alpine37 \
-			-t $(DH_ID_base):alpine37 \
-			-t $(DH_ID_base):alpine37-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.alpine-base-37.log \
-		;\
+build-alpine-base-edge:           r--build-alpine-base-edge
+build-alpine-base-311-ans29-py38: r--build-alpine-base-311-ans29-py38
+build-alpine-base-311-ans29:      r--build-alpine-base-311-ans29
+build-alpine-base-310-ans28:      r--build-alpine-base-310-ans28
+build-alpine-base-39-ans27:       r--build-alpine-base-39-ans27
+build-alpine-base-38-ans27:       r--build-alpine-base-38-ans27
+build-alpine-base-38:             r--build-alpine-base-38
+build-alpine-base-37:             r--build-alpine-base-37
 
-build-alpine-base-38: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.alpine38 \
-			-t $(DH_ID_base):alpine38 \
-			-t $(DH_ID_base):alpine38-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.alpine-base-38.log \
-		;\
+build-deb-base: \
+	build-deb-base-10-ans29
 
-build-alpine-base-38-ans27: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.alpine38-ans27 \
-			-t $(DH_ID_base):alpine38-ans27 \
-			-t $(DH_ID_base):alpine38-ans27-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.alpine-base-38-ans27.log \
-		;\
-
-build-alpine-base-39-ans27: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.alpine39-ans27 \
-			-t $(DH_ID_base):alpine39-ans27 \
-			-t $(DH_ID_base):alpine39-ans27-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.alpine-base-39-ans27.log \
-		;\
-
-build-alpine-base-310-ans28: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.alpine310-ans28 \
-			-t $(DH_ID_base):alpine310-ans28 \
-			-t $(DH_ID_base):alpine310-ans28-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.alpine-base-310-ans28.log \
-		;\
-
-build-alpine-base-311-ans29: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.alpine311-ans29 \
-			-t $(DH_ID_base):alpine \
-			-t $(DH_ID_base):alpine311-ans29 \
-			-t $(DH_ID_base):alpine311-ans29-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.alpine-base-311-ans29.log \
-		;\
-
-build-alpine-base-edge	: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.alpineedge \
-			-t $(DH_ID_base):alpineedge \
-			-t $(DH_ID_base):alpineedge-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.alpine-base-edge.log \
-		;\
+build-deb-base-10-ans29:    r--build-deb-base-10-ans29
 
 build-ubuntu-base: \
 	build-ubuntu-base-1804-ans29 \
@@ -92,58 +43,30 @@ build-ubuntu-base: \
 	build-ubuntu-base-1604
 	# build-ubuntu-base-1404
 
-build-ubuntu-base-1804-ans29: check-env-base
-	cd $(THIS_DIR)src.base ; \
-	docker build $(BUILD_CACHE) -f Dockerfile.1804-ans29 \
-			-t $(DH_ID_base):ubuntu \
-			-t $(DH_ID_base):ubuntu1804-ans29 \
-			-t $(DH_ID_base):ubuntu1804-ans29-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.ubuntu-base-1804.log
-
-
-build-ubuntu-base-1604-ans27: check-env-base
-	cd $(THIS_DIR)src.base ; \
-	docker build $(BUILD_CACHE) -f Dockerfile.1604-ans27 \
-			-t $(DH_ID_base):ubuntu1604-ans27 \
-			-t $(DH_ID_base):ubuntu1604-ans27-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.ubuntu-base-1604.log \
-		;\
-
-build-ubuntu-base-1604: check-env-base
-	cd $(THIS_DIR)src.base ; \
-	docker build $(BUILD_CACHE) -f Dockerfile.1604 \
-			-t $(DH_ID_base):ubuntu1604 \
-			-t $(DH_ID_base):ubuntu1604-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.ubuntu-base-1604.log \
-		;\
-
-# build-ubuntu-base-1404: check-env-base
-# 	cd $(THIS_DIR)src.base ; \
-# 	docker build $(BUILD_CACHE) -f Dockerfile.1404 \
-# 			-t $(DH_ID_base):ubuntu1404 \
-# 			-t $(DH_ID_base):ubuntu1404-${TAG_VERSION} \
-# 			. \
-# 		| tee /tmp/docker-ops-provision.ubuntu-base-1404.log \
-# 		;\
+build-ubuntu-base-1804-ans29:    r--build-ubuntu-base-1804-ans29
+build-ubuntu-base-1604-ans27:    r--build-ubuntu-base-1604-ans27
+build-ubuntu-base-1604:          r--build-ubuntu-base-1604
+# build-ubuntu-base-1404:          r--build-ubuntu-base-1404
 
 # --------------------------------------------------------------------------
-pull-base: pull-alpine-base pull-ubuntu-base
+pull-base: pull-alpine-base pull-deb-base pull-ubuntu-base
 
 pull-alpine-base: check-env-base
-	docker pull $(DH_ID_base):alpine
-	docker pull $(DH_ID_base):alpine37
-	docker pull $(DH_ID_base):alpine38
-	docker pull $(DH_ID_base):alpine38-ans27
-	docker pull $(DH_ID_base):alpine39-ans27
-	docker pull $(DH_ID_base):alpine310-ans28
-	docker pull $(DH_ID_base):alpine311-ans29
+	# docker pull $(DH_ID_base):alpine
 	docker pull $(DH_ID_base):alpineedge
+	docker pull $(DH_ID_base):alpine311-ans29-py38
+	docker pull $(DH_ID_base):alpine311-ans29
+	docker pull $(DH_ID_base):alpine310-ans28
+	docker pull $(DH_ID_base):alpine39-ans27
+	docker pull $(DH_ID_base):alpine38-ans27
+	docker pull $(DH_ID_base):alpine38
+	docker pull $(DH_ID_base):alpine37
+
+pull-deb-base:
+	docker pull $(DH_ID_base):deb10-ans29
 
 pull-ubuntu-base:
-	docker pull $(DH_ID_base):ubuntu
+	# docker pull $(DH_ID_base):ubuntu
 	docker pull $(DH_ID_base):ubuntu1804-ans29
 	docker pull $(DH_ID_base):ubuntu1604-ans27
 	docker pull $(DH_ID_base):ubuntu1604
@@ -183,79 +106,26 @@ push-ubuntu-base: check-env-base
 # --------------------------------------------------------------------------
 shell-alpine-base: shell-alpine-baseedge
 
-shell-alpine-base37:
-	docker run -it --rm $(DH_ID_base):alpine37 bash
+shell-alpine-baseedge:           r--shell-alpine-basealpineedge
+shell-alpine-base311-ans29-py38: r--shell-alpine-alpine311-ans29-py38
+shell-alpine-base311-ans29:      r--shell-alpine-alpine311-ans29
+shell-alpine-base311-ans29:      r--shell-alpine-base311-ans29
+shell-alpine-base310-ans28:      r--shell-alpine-base310-ans28
+shell-alpine-base39-ans27:       r--shell-alpine-base39-ans27
+shell-alpine-base38-ans27:       r--shell-alpine-base38-ans27
+shell-alpine-base38:             r--shell-alpine-base38
+shell-alpine-base37:             r--shell-alpine-base37
 
-shell-alpine-base38:
-	docker run -it --rm $(DH_ID_base):alpine38 bash
+shell-deb10e: shell-deb10-ans29-base
 
-shell-alpine-base38-ans27:
-	docker run -it --rm $(DH_ID_base):alpine38-ans27 bash
-
-shell-alpine-base39-ans27:
-	docker run -it --rm $(DH_ID_base):alpine39-ans27 bash
-
-shell-alpine-base310-ans28:
-	docker run -it --rm $(DH_ID_base):alpine310-ans28 bash
-
-shell-alpine-base311-ans29:
-	docker run -it --rm $(DH_ID_base):alpine311-ans29 bash
-
-shell-alpine-baseedge:
-	docker run -it --rm $(DH_ID_base):alpineedge bash
-
-shell-ubuntu1604-base: shell-ubuntu-base
+shell-deb10-ans29-base:     r--shell-deb-base10-ans29
 
 
-shell-ubuntu1804-ans29-base:
-	docker run -it --rm $(DH_ID_base):ubuntu1804-ans29 bash
+shell-ubuntu-base: shell-ubuntu1804-ans29-base
 
-shell-ubuntu1604-ans27-base:
-	docker run -it --rm $(DH_ID_base):ubuntu1604-ans27 bash
-
-shell-ubuntu1604-base:
-	docker run -it --rm $(DH_ID_base):ubuntu1604 bash
-
-# shell-ubuntu1404-base:
-# 	docker run -it --rm $(DH_ID_base):ubuntu1404 bash
-
-# --------------------------------------------------------------------------
-test-base:        \
-	test-alpine-base     \
-	test-ubuntu-base
-test-alpine-base: test-alpine37-base test-alpine38-base test-alpine38-ans27-base test-alpine39-ans27-base test-alpine310-ans28-base test-alpine311-ans29-base test-alpineedge-base
-test-ubuntu-base: test-ubuntu1604-base test-ubuntu1604-ans27-base test-ubuntu1804-ans29-base
-
-test-alpineedge-base:
-	docker run -it --rm $(DH_ID_base):alpineedge
-
-test-alpine311-ans29-base:
-	docker run -it --rm $(DH_ID_base):alpine311-ans29
-
-test-alpine310-ans28-base:
-	docker run -it --rm $(DH_ID_base):alpine310-ans28
-
-test-alpine39-ans27-base:
-	docker run -it --rm $(DH_ID_base):alpine39-ans27
-
-test-alpine38-ans27-base:
-	docker run -it --rm $(DH_ID_base):alpine38-ans27
-
-test-alpine38-base:
-	docker run -it --rm $(DH_ID_base):alpine38
-
-test-alpine37-base:
-	docker run -it --rm $(DH_ID_base):alpine37
-
-test-ubuntu1804-ans29-base:
-	docker run -it --rm $(DH_ID_base):ubuntu1804-ans29
-
-test-ubuntu1604-ans27-base:
-	docker run -it --rm $(DH_ID_base):ubuntu1604-ans27
-
-test-ubuntu1604-base:
-	docker run -it --rm $(DH_ID_base):ubuntu1604
-
-# test-ubuntu1404-base:
-# 	docker run -it --rm $(DH_ID_base):ubuntu1404
+shell-ubuntu1804-ans29-base:     r--shell-ubuntu-base1804-ans29
+shell-ubuntu1604-ans27-base:     r--shell-ubuntu-base1604-ans27
+shell-ubuntu1604-base:           r--shell-ubuntu-base1604
+shell-ubuntu1404-base:           r--shell-ubuntu-base1404
+# shell-ubuntu1404-base:           r--shell-ubuntu-base1404
 
