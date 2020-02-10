@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.7 as final
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -10,19 +10,21 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #
 
 ENV ANSIBLE_FROM_PIP=1
-ENV PIP__ANSIBLE_VER="~=2.8.0"
+ENV PIP__ANSIBLE_VER="~=2.5.0"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
-    apk --update --no-cache add \
+    apk --update add \
             ca-certificates \
             openssl \
     && \
-    echo "..."
-
-RUN \
+    \
+    echo "===> Adding Python runtime..."  && \
+    apk --update add \
+            python3 \
+        && \
     echo "===> Adding usefull packages for devops shell-works..."  && \
-    apk --update --no-cache add \
+    apk --update add \
             coreutils \
             openssh-client \
             rsync \
@@ -36,12 +38,10 @@ RUN \
             bash-completion \
             less \
             nano \
-            jq \
             \
             curl \
             wget \
             \
-            virt-what \
             zip \
             xz \
             unrar \
@@ -51,109 +51,72 @@ RUN \
             mc \
             mosh \
             screen \
-            dos2unix \
             \
             lsscsi \
             \
-            iotop \
             htop \
             atop \
             sysstat \
             iftop \
-            bmon \
-            \
-            iptraf-ng \
-            nethogs \
             lsof \
             util-linux \
             mtr \
-            groff \
-        && \
-    echo "..."
-
-RUN \
-    echo "===> Adding Python runtime..."  && \
-    apk --update --no-cache add \
-            python3 \
+            \
+            postgresql-client \
+            mysql-client \
+            \
             py3-cffi \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
     pip3 install --upgrade pip setuptools wheel && \
-    echo "..."
-
-RUN \
-    echo "===> DB clients..."  && \
-    apk --update --no-cache add \
-            postgresql-client \
-            mysql-client \
-        && \
-    echo "..."
-
-RUN \
-    echo "===> Installing NodeJS 12.14+..."  && \
-    apk --update --no-cache add \
+    \
+    ( \
+      if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
+        echo " ===> Installing Ansible (from apk)..." \
+        ; \
+        apk --update add \
+            ansible \
+        ; \
+      else \
+        echo "===> Installing Ansible (via PIP)..." \
+        ; \
+        apk --update add --virtual build-dependencies \
+            python3-dev \
+            build-base  \
+            openssl-dev \
+            libffi-dev \
+        ; \
+        pip3 install --upgrade \
+            ansible${PIP__ANSIBLE_VER} \
+            boto \
+            packaging \
+            ansible-lint \
+            openshift \
+            \
+            # Make sure we can run ansible's docker scripts
+            docker \
+            docker-compose \
+        ; \
+        apk del build-dependencies \
+        ; \
+      fi \
+    ) \
+    && \
+    \
+    echo "===> Installing NodeJS 8.9+..."  && \
+    apk --update add \
             nodejs \
-            npm \
             yarn \
-        && \
-    echo "..."
-
-RUN \
-    echo "===> Adding Ruby 2.6.5+..."  && \
-    apk --update --no-cache add \
+    && \
+    \
+    echo "===> Adding Ruby 2.4+..."  && \
+    apk --update add \
             ruby \
-        && \
-    echo "..."
-
-RUN \
+    && \
     echo "===> Adding docker-ssh-exec..."  && \
     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
          tar -xz --strip-components=1 -C /usr/local/bin \
-    && \
-    echo "..."
-
-RUN \
-    if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
-        echo " ===> Installing Ansible (from apk)..." \
-        && \
-        apk --update --no-cache add \
-            ansible \
-        ; \
-    else \
-        echo "===> Installing Ansible (via PIP)..." \
-        && \
-        apk --update --no-cache add \
-            --virtual build-dependencies \
-                python3-dev \
-                build-base  \
-                openssl-dev \
-                libffi-dev \
-        && \
-            pip3 install --upgrade --upgrade-strategy eager \
-                boto \
-                packaging \
-                openshift \
-                grpcio \
-                \
-                # Make sure we can run ansible's docker scripts
-                docker \
-                docker-compose \
-                \
-                ansible${PIP__ANSIBLE_VER} \
-                ansible-lint \
-                \
-                ansible[azure]${PIP__ANSIBLE_VER} \
-                azure-cli \
-                \
-                awscli \
-                s3cmd \
-                \
-                python-magic \
-            && \
-        apk del --update --no-cache build-dependencies \
-        ; \
-    fi \
     && \
     \
     echo "===> Cleaning up ..."  && \
@@ -179,7 +142,5 @@ CMD \
     node --version             | head -n 1 && \
     ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
-    az   --version             | head -n 1 && \
-    aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
     openssl version            | head -n 1

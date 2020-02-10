@@ -13,6 +13,15 @@ r--build-alpine-base-%: check-env-base
 		| tee /tmp/docker-ops-provision.alpine-base-$*.log \
 		;\
 
+r--build-deb-base-%: check-env-base
+	cd $(THIS_DIR)src.base ;\
+	docker build $(BUILD_CACHE) -f Dockerfile.deb$*.docker \
+			-t $(DH_ID_base):deb$* \
+			-t $(DH_ID_base):deb$*-${TAG_VERSION} \
+			. \
+		| tee /tmp/docker-ops-provision.deb-$*.log \
+		;\
+
 r--build-ubuntu-base-%: check-env-base
 	cd $(THIS_DIR)src.base ;\
 	docker build $(BUILD_CACHE) -f Dockerfile.$*.docker \
@@ -22,11 +31,3 @@ r--build-ubuntu-base-%: check-env-base
 		| tee /tmp/docker-ops-provision.ubuntu-base-$*.log \
 		;\
 
-r--build-deb-base-%: check-env-base
-	cd $(THIS_DIR)src.base ;\
-	docker build $(BUILD_CACHE) -f Dockerfile.deb$*.docker \
-			-t $(DH_ID_base):deb$* \
-			-t $(DH_ID_base):deb$*-${TAG_VERSION} \
-			. \
-		| tee /tmp/docker-ops-provision.deb-base-$*.log \
-		;\

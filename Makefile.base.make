@@ -33,9 +33,9 @@ build-alpine-base-38:             r--build-alpine-base-38
 build-alpine-base-37:             r--build-alpine-base-37
 
 build-deb-base: \
-	build-deb-base-10-ans29
+	build-deb-base-10-ans29-py37
 
-build-deb-base-10-ans29:    r--build-deb-base-10-ans29
+build-deb-base-10-ans29-py37:    r--build-deb-base-10-ans29-py37
 
 build-ubuntu-base: \
 	build-ubuntu-base-1804-ans29 \

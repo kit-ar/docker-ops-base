@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.8 as final
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -9,12 +9,11 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
 
-ENV ANSIBLE_FROM_PIP=1
 ENV PIP__ANSIBLE_VER="~=2.6.0"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
-    apk --update add \
+    apk --update --no-cache add \
             ca-certificates \
             openssl \
     && \
@@ -38,6 +37,7 @@ RUN \
             bash-completion \
             less \
             nano \
+            jq \
             \
             curl \
             wget \
@@ -51,6 +51,7 @@ RUN \
             \
             mc \
             mosh \
+            ncdu \
             screen \
             dos2unix \
             \

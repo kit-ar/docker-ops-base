@@ -9,13 +9,13 @@ LABEL maintainer="webmaster@kit-ar.com"
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
 
-ENV ANSIBLE_FROM_PIP=1
 ENV PIP__ANSIBLE_VER="~=2.9.0"
 ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
 ## uncomment if really needed
 # ENV PYHELM_PIP3=pyhelm
+
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apk --update --no-cache add \
@@ -127,6 +127,7 @@ COPY --from=int-helm-kubectl /usr/local/bin/kubectl /usr/bin/kubectl
 
 RUN \
     echo "===> Configuring Python and PIP..."  && \
+    pip3 list &&\
     pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
         pip setuptools wheel \
         pip-tools \
@@ -143,31 +144,30 @@ RUN \
             libffi-dev \
         && \
         pip3 list && \
+    \
         echo "===> Installing Ansible (via PIP)..." \
         echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
         echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
         echo "===> as of 2020-02-09, we could not find any other option..." \
         echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
-            echo "===> Installing (ansible)..." && \
         \
+        echo "===> Installing (tools)..." && \
+        pip3 install --no-cache-dir \
+            python-magic \
+            s3cmd \
+        && \
         pip3 list && \
+        \
         echo "===> Installing (ansible)..." && \
-        pip3 install --no-cache-dir --upgrade ${PIP__UPGR_STRAT} \
+        python3 -m venv /opt/ans \
+        &&\
+        /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
                     ansible${PIP__ANSIBLE_VER} \
         && \
-        pip3 list && \
-            echo "===> Installing (ansible[azure])..." && \
-        pip3 install --no-cache-dir --upgrade ${PIP__UPGR_STRAT} \
-                    ansible[azure]${PIP__ANSIBLE_VER} \
-        && \
-        pip3 list && \
-            echo "===> Installing (azure-cli)..." && \
-        pip3 install --no-cache-dir --upgrade ${PIP__UPGR_STRAT} \
-                    azure-cli \
-            && \
-            pip3 list &&\
-        \
-        pip3 install --no-cache-dir --upgrade \
+        /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+            ansible[azure]${PIP__ANSIBLE_VER} \
+            \
             boto \
             \
             openshift \
@@ -178,25 +178,38 @@ RUN \
             \
         ansible-lint \
         \
+        &&\
+        \
+        echo "===> Installing (azure-cli)..." && \
+        python3 -m venv /opt/az \
+        &&\
+        /opt/az/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            azure-cli \
+        &&\
+        \
+        echo "===> Installing (aws-cli)..." && \
+        python3 -m venv /opt/aws \
+        &&\
+        /opt/aws/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
             awscli \
-            s3cmd \
-            \
-            python-magic \
         && \
-    pip3 list && \
-    apk del --update --no-cache build-dependencies \
-    && \
     \
     echo "===> Cleaning up ..."  && \
+    apk del --update --no-cache \
+        build-dependencies \
+    && \
     rm -rf \
-      "${HOME}/.cache" \
-       /var/cache/apk/* \
-       /tmp/*               \
-       /var/tmp/*           \
+        "${HOME}/.cache" \
+        /var/cache/apk/* \
+        /tmp/*           \
+        /var/tmp/*       \
     && \
     \
     echo "OK!"
 
+ENV PATH="/opt/ans/bin:/opt/az/bin:/opt/aws/bin:$PATH"
 
 # default command: display Ansible version
 CMD \

@@ -1,16 +1,20 @@
-# adapted from [ williamyeh/ansible:ubuntu14.04-onbuild ]
-# "ONBUILD version" because:
-# - updates some SSL stuff everytime is used in another image
-# - copies . to /tmp/ops
-#
-# added some improvements from [ https://github.com/timhaak/docker-base ]
-
 FROM ubuntu:16.04 as final
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
+# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
+# we no longer install/support python2 by default.
+# Also, we do not pretend pip will be available. Use pip3 instead.
+#
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE_VER="~=2.6.0"
+ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
+
+## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
+## uncomment if really needed
+# ENV PYHELM_PIP3=pyhelm
+
+SHELL ["/bin/bash", "-c"]
 
 RUN \
     echo "===> Enabling Multiverse..."  && \
@@ -19,6 +23,8 @@ RUN \
     echo "===> Speeding up apt and dpkg..."  && \
     echo "force-unsafe-io"                 > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
+    echo "APT::Install-Recommends \"0\";"  > /etc/apt/apt.conf.d/no-install-recommend   && \
+    echo "APT::Install-Suggests \"0\";"  > /etc/apt/apt.conf.d/no-install-recommend     && \
     \
     echo "===> Initial packages update"  && \
     apt-get    update  && \
@@ -39,15 +45,10 @@ RUN \
             openssl \
             ssl-cert \
     && \
-    \
-    echo "===> Upgrading distribution..."  && \
-    apt-get -y dist-upgrade && \
-    \
-    echo "===> Adding Python runtime..."  && \
-    apt-get -y install  \
-        #     python  python-pip \
-            python3 python3-pip \
-    && \
+    #\
+    #echo "===> Upgrading distribution..."  && \
+    #apt-get -y dist-upgrade && \
+    #\
     echo "===> Adding usefull packages for devops shell-works..."  && \
     apt-get -y install  \
             openssh-client \
@@ -59,6 +60,7 @@ RUN \
             bash-completion \
             less \
             nano \
+            jq \
             \
             curl \
             wget \
@@ -73,6 +75,7 @@ RUN \
             \
             mc \
             mosh \
+            ncdu \
             screen \
             dos2unix \
             deborphan \
@@ -95,34 +98,11 @@ RUN \
             procinfo \
             util-linux \
             mtr \
+            groff \
             \
             postgresql-client \
             mysql-client \
             \
-    && \
-    \
-    echo "===> PIP3 has some issues ..."  && \
-    pip3 install --upgrade setuptools wheel && \
-#     echo "===> Configuring Python and PIP..."  && \
-#     pip3 install --upgrade pip setuptools wheel && \
-# #     pip2 install --upgrade pip setuptools wheel && \
-# #     rm $(which pip) && \
-# #     ln -s $(which pip2) /usr/local/bin/pip && \
-# #     \
-# #     echo Making sure pip is set to python2 && \
-# #     pip --version | grep "python 2\."  && \
-    \
-    echo "===> Installing Ansible (via pip, to have control of installed version)..."  && \
-    apt-get -y install  \
-            libssl-dev libffi-dev \
-    && \
-    \
-    pip3 install --upgrade \
-            ansible${PIP__ANSIBLE_VER} \
-            \
-            # Make sure we can run ansible's docker scripts
-            docker \
-            docker-compose \
     && \
     \
     echo "===> Installing NodeJS 8.x..."  && \
@@ -143,7 +123,87 @@ RUN \
          tar -xz --strip-components=1 -C /usr/local/bin \
     && \
     \
+    echo "===> Adding Python3 runtime..."  && \
+    apt-get -y install  \
+            python3${APT__PYHTON3_VER} \
+            python3-pip \
+            python3-venv \
+    && \
+    \
+    echo "===> Configuring Python and PIP..."  && \
+    echo "===> PIP3 has an issue when upgraded to v18+..."  && \
+    pip3 list &&\
+    pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
+        pip${PIP__PIP3_VER} setuptools wheel \
+        pip-tools \
+    && \
+    rm -rf /usr/bin/pip3 && \
+    ln -s /usr/local/bin/pip3 /usr/bin/pip3 &&\
+    \
+    pip3 list &&\
+    \
+    echo "===> Installing Ansible (via PIP)..." \
+    echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
+    echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
+    echo "===> as of 2020-02-09, we could not find any other option..." \
+    echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
+    && \
+    \
+    # echo "===> Installing (python3-*) to speedup build ..." && \
+    # apt-get -y install  \
+    #         python3-cffi \
+    # && \
+    # pip3 list && \
+    \
+    echo "===> Installing (tools)..." && \
+    pip3 install --no-cache-dir \
+        python-magic \
+        s3cmd \
+    && \
+    pip3 list && \
+    \
+    echo "===> Installing (ansible)..." && \
+    python3 -m venv /opt/ans \
+    &&\
+    /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+        pip \
+        ansible${PIP__ANSIBLE_VER} \
+    &&\
+    /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+        ansible[azure]${PIP__ANSIBLE_VER} \
+        \
+        boto \
+        \
+        openshift \
+        ${PYHELM_PIP3} \
+        \
+        docker \
+        docker-compose \
+        \
+        ansible-lint \
+        \
+    &&\
+    \
+    echo "===> Installing (azure-cli)..." && \
+    python3 -m venv /opt/az \
+    &&\
+    /opt/az/bin/pip3 install --no-cache-dir --upgrade \
+        pip \
+        azure-cli \
+    &&\
+    \
+    echo "===> Installing (aws-cli)..." && \
+    python3 -m venv /opt/aws \
+    &&\
+    /opt/aws/bin/pip3 install --no-cache-dir --upgrade \
+        pip \
+        awscli \
+    &&\
+    \
     echo "===> Cleaning up ..."  && \
+    apt-get purge --autoremove -y \
+        gcc g++ \
+    && \
     apt-get autoremove --purge -y && \
     apt-get clean              -y && \
     rm -rf \
@@ -154,6 +214,8 @@ RUN \
     && \
     \
     echo "OK!"
+
+ENV PATH="/opt/ans/bin:/opt/az/bin:/opt/aws/bin:$PATH"
 
 FROM krallin/ubuntu-tini:16.04 as tini_src
 FROM final
@@ -170,8 +232,6 @@ RUN \
     /usr/local/bin/tini-static -- ls && \
     echo "OK!"
 
-SHELL ["/bin/bash", "-c"]
-
 # default command: display Ansible version
 CMD \
     ansible-playbook --version | head -n 1 && \
@@ -182,5 +242,7 @@ CMD \
     node --version             | head -n 1 && \
     ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
+    az   --version             | head -n 1 && \
+    aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
     openssl version            | head -n 1

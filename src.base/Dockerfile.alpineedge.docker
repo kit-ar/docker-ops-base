@@ -9,7 +9,6 @@ LABEL maintainer="webmaster@kit-ar.com"
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
 
-ENV ANSIBLE_FROM_PIP=1
 ENV PIP__ANSIBLE_VER=
 ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 
@@ -145,15 +144,6 @@ RUN \
     echo "..."
 
 RUN \
-    if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
-        echo " ===> Installing Ansible (from apk)..." \
-        && \
-        apk --update --no-cache add \
-            ansible \
-        ; \
-    else \
-        echo "===> Installing Ansible (via PIP)..." \
-        && \
         apk --update --no-cache add \
             --virtual build-dependencies \
                 python3-dev \
@@ -162,46 +152,30 @@ RUN \
                 libffi-dev \
         && \
         pip3 list &&\
+    \
+        echo "===> Installing Ansible (via PIP)..." \
         echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
         echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
         echo "===> as of 2020-02-09, we could not find any other option..." \
         echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
-        echo "===> Installing (ansible)..." && \
         \
-        echo "===> Installing (py3-*) to speedup build in alpine..." && \
-        apk add --no-cache --update \
-            py3-jinja2 \
-            py3-markupsafe \
-            py3-yaml \
-            py3-cffi \
-            py3-cryptography \
-            py3-paramiko \
-            py3-pynacl \
-            py3-packaging \
-            py3-parsing \
-            \
-            # grpcio is VERY VERY slow if installed from source !!!
-            # only needed for pyhelm
-            ${PYHELM_APK_GRPCIO} \
+        echo "===> Installing (tools)..." && \
+        pip3 install --no-cache-dir \
+            python-magic \
+            s3cmd \
         && \
         pip3 list && \
+        \
         echo "===> Installing (ansible)..." && \
-        pip3 install --no-cache-dir \
-                ansible${PIP__ANSIBLE_VER} \
-            && \
-        pip3 list &&\
-        echo "===> Installing (ansible[azure])..." && \
-        pip3 install --no-cache-dir \
+        python3 -m venv /opt/ans \
+        &&\
+        /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            ansible${PIP__ANSIBLE_VER} \
+        && \
+        /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
             ansible[azure]${PIP__ANSIBLE_VER} \
-        && \
-        pip3 list &&\
-        echo "===> Installing (azure-cli)..." && \
-        pip3 install --no-cache-dir --upgrade ${PIP__UPGR_STRAT_X} \
-            azure-cli \
-        && \
-        pip3 list &&\
-        echo "===> Installing other pip3 based tools..." && \
-        pip3 install --no-cache-dir \
+            \
             boto \
             \
             openshift \
@@ -212,18 +186,28 @@ RUN \
             \
             ansible-lint \
             \
+        &&\
+        \
+        echo "===> Installing (azure-cli)..." && \
+        python3 -m venv /opt/az \
+        &&\
+        /opt/az/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            azure-cli \
+        &&\
+        \
+        echo "===> Installing (aws-cli)..." && \
+        python3 -m venv /opt/aws \
+        &&\
+        /opt/aws/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
             awscli \
-            s3cmd \
-            \
-            python-magic \
         && \
-        pip3 list && \
-        apk del --update --no-cache build-dependencies \
-        ; \
-    fi \
-    && \
     \
     echo "===> Cleaning up ..."  && \
+    apk del --update --no-cache \
+        build-dependencies \
+    && \
     rm -rf \
       "${HOME}/.cache" \
        /var/cache/apk/* \
@@ -233,6 +217,7 @@ RUN \
     \
     echo "OK!"
 
+ENV PATH="/opt/ans/bin:/opt/az/bin:/opt/aws/bin:$PATH"
 
 # default command: display Ansible version
 CMD \

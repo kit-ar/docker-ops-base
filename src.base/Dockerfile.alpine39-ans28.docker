@@ -1,4 +1,4 @@
-FROM alpine:3.10 as final
+FROM alpine:3.9 as final
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -109,13 +109,6 @@ RUN \
     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
          tar -xz --strip-components=1 -C /usr/local/bin \
     && \
-    echo "..."
-
-RUN \
-    echo "===> Adding Docker cli..."  && \
-    apk --update --no-cache add \
-            docker-cli \
-        && \
     echo "..."
 
 #FROM alpine/helm:3.0.2 as int-helm

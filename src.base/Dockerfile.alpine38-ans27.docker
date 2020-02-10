@@ -1,4 +1,4 @@
-FROM alpine:3.10 as final
+FROM alpine:3.8 as final
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -9,7 +9,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
 
-ENV PIP__ANSIBLE_VER="~=2.8.0"
+ENV PIP__ANSIBLE_VER="~=2.7.0"
 ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
@@ -109,13 +109,6 @@ RUN \
     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
          tar -xz --strip-components=1 -C /usr/local/bin \
     && \
-    echo "..."
-
-RUN \
-    echo "===> Adding Docker cli..."  && \
-    apk --update --no-cache add \
-            docker-cli \
-        && \
     echo "..."
 
 #FROM alpine/helm:3.0.2 as int-helm
