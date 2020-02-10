@@ -8,7 +8,9 @@ DH_ID_base=ez123/ops-base
 # --------------------------------------------------------------------------
 dc-clean-ours-only:
 	docker images --filter=reference="ez123/ops-base*:*"
-	docker rm $$(docker ps -a -q); docker rmi $$(docker images -q --filter=reference="$(DH_ID_base)*:*")
+	docker rm  $$(docker ps -a -q)                                           ||true
+	docker rmi -f $$(docker images -q -f dangling=true)                      ||true
+	docker rmi -f $$(docker images -q --filter=reference="$(DH_ID_base)*:*") ||true
 
 # --------------------------------------------------------------------------
 check-env-base:
