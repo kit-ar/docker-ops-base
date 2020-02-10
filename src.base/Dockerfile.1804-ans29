@@ -168,7 +168,7 @@ RUN \
             python3-pip \
             python3-venv \
     && \
-    pip3 list && \
+    pip3 list &&\
     \
     echo "===> Installing Ansible (via PIP)..." \
     echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
@@ -232,17 +232,12 @@ RUN \
     echo "..."
 
 # #########################################################################
-# we rely on the intermediate image and the final image being the same;
-# the source and target location must be the same as venv relies on hardwired python path
-FROM final
-COPY --from=int--pip-stuff /venv   /venv
-
-ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+FROM krallin/ubuntu-tini:bionic as tini_src
 
 # #########################################################################
-FROM krallin/ubuntu-tini:bionic as tini_src
 FROM final
 
+# =========================================================================
 COPY --from=tini_src /usr/bin/tini* /usr/bin/
 RUN \
     echo "Symlinkng to /usr/local/bin" && \
@@ -255,8 +250,19 @@ RUN \
     /usr/local/bin/tini-static -s -- ls && \
     echo "OK!"
 
-# #########################################################################
+# =========================================================================
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+COPY --from=int--pip-stuff /venv   /venv
 
+RUN \
+    du -hd1 /venv &&\
+    \
+    echo "..."
+
+ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+
+# #########################################################################
 # default command: display Ansible version
 CMD \
     ansible-playbook --version | head -n 1 && \

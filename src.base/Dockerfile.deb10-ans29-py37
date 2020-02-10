@@ -11,9 +11,11 @@ LABEL maintainer="webmaster@kit-ar.com"
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE_VER="~=2.9.0"
 ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
+
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
 ## uncomment if really needed
 # ENV PYHELM_PIP3=pyhelm
+
 SHELL ["/bin/bash", "-c"]
 
 RUN \
@@ -153,6 +155,7 @@ RUN \
 FROM ${BASE_IMAGE} as int--pip-stuff
 
 RUN \
+    apt-get update &&\
     apt-get -y install  \
             gcc g++ make \
     && \
@@ -218,18 +221,14 @@ RUN \
     &&\
     \
     echo "..."
-# #########################################################################
-# we rely on the intermediate image and the final image being the same;
-# the source and target location must be the same as venv relies on hardwired python path
-FROM final
-COPY --from=int--pip-stuff /venv   /venv
-
-ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
 
 # #########################################################################
 FROM krallin/ubuntu-tini:bionic as tini_src
+
+# #########################################################################
 FROM final
 
+# =========================================================================
 COPY --from=tini_src /usr/bin/tini* /usr/bin/
 RUN \
     echo "Symlinkng to /usr/local/bin" && \
@@ -241,9 +240,20 @@ RUN \
     /usr/local/bin/tini -s -- ls && \
     /usr/local/bin/tini-static -s -- ls && \
     echo "OK!"
-    
-# #########################################################################
 
+# =========================================================================
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+COPY --from=int--pip-stuff /venv   /venv
+
+RUN \
+    du -hd1 /venv &&\
+    \
+    echo "..."
+
+ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+
+# #########################################################################
 # default command: display Ansible version
 CMD \
     ansible-playbook --version | head -n 1 && \
