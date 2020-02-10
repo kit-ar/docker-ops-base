@@ -18,15 +18,17 @@ include ./Makefile.base.make
 # --------------------------------------------------------------------------
 build: all
 
-all: build-alpine build-ubuntu
+all: build-alpine build-ubuntu build-ubdebuntu
 
 #build-alpine: build-alpine-base build-alpine-provis
 build-alpine: build-alpine-base
 build-ubuntu: build-ubuntu-base
+build-deb:    build-deb-base
 
-pull: pull-alpine pull-ubuntu
+pull: pull-alpine pull-ubuntu pull-deb
 pull-alpine: pull-alpine-base
 pull-ubuntu: pull-ubuntu-base
+pull-deb:    pull-deb-base
 
 push: push-alpine push-ubuntu
 push-alpine: push-alpine-base
