@@ -10,7 +10,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
 
-ENV PIP__ANSIBLE_VER="~=2.9.0"
+ENV PIP__ANSIBLE_VER="~=2.7.0"
 ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
@@ -228,7 +228,7 @@ FROM final
 COPY --from=int--pip-stuff /venv   /venv
 
 ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
-# #########################################################################
+
 # default command: display Ansible version
 CMD \
     ansible-playbook --version             && \
