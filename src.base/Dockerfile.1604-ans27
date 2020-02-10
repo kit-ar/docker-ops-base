@@ -1,4 +1,5 @@
-FROM ubuntu:16.04 as final
+ARG BASE_IMAGE=ubuntu:16.04
+FROM ${BASE_IMAGE} as final
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -6,6 +7,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 # we no longer install/support python2 by default.
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
+
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE_VER="~=2.7.0"
 ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
@@ -21,8 +23,8 @@ RUN \
     sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
     \
     echo "===> Speeding up apt and dpkg..."  && \
-    echo "force-unsafe-io"                 > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
-    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
+    echo "force-unsafe-io"                 > /etc/dpkg/dpkg.cfg.d/02apt-speedup         && \
+    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache               && \
     echo "APT::Install-Recommends \"0\";"  > /etc/apt/apt.conf.d/no-install-recommend   && \
     echo "APT::Install-Suggests \"0\";"  > /etc/apt/apt.conf.d/no-install-recommend     && \
     \
@@ -141,6 +143,33 @@ RUN \
     \
     pip3 list &&\
     \
+    echo "===> Cleaning up ..."  && \
+    apt-get purge --autoremove -y \
+        gcc g++ \
+    && \
+    apt-get autoremove --purge -y && \
+    apt-get clean              -y && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/lib/apt/lists/* \
+        /tmp/*               \
+        /var/tmp/*           \
+    && \
+    echo "..."
+
+# #########################################################################
+FROM ${BASE_IMAGE} as int--pip-stuff
+
+RUN \
+    apt-get update &&\
+    apt-get -y install  \
+            python3-dev${APT__PYHTON3_VER} \
+            python3${APT__PYHTON3_VER} \
+            python3-pip \
+            python3-venv \
+    && \
+    pip3 list && \
+    \
     echo "===> Installing Ansible (via PIP)..." \
     echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
     echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
@@ -155,68 +184,63 @@ RUN \
     # pip3 list && \
     \
     echo "===> Installing (tools)..." && \
-    pip3 install --no-cache-dir \
-        python-magic \
-        s3cmd \
-    && \
-    pip3 list && \
-    \
-    echo "===> Installing (ansible)..." && \
-    python3 -m venv /opt/ans \
-    &&\
-    /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        ansible${PIP__ANSIBLE_VER} \
-    &&\
-    /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
-        ansible[azure]${PIP__ANSIBLE_VER} \
+        python3 -m venv /venv/tools \
+        &&\
+        /venv/tools/bin/pip3 install --no-cache-dir \
+            python-magic \
+            s3cmd \
+        && \
         \
-        boto \
+        echo "===> Installing (ansible)..." && \
+        python3 -m venv /venv/ans \
+        &&\
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            ansible${PIP__ANSIBLE_VER} \
+        && \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+            ansible[azure]${PIP__ANSIBLE_VER} \
+            \
+            boto \
+            \
+            openshift \
+            ${PYHELM_PIP3} \
+            \
+            docker \
+            docker-compose \
+            \
+            ansible-lint \
+            \
+        &&\
         \
-        openshift \
-        ${PYHELM_PIP3} \
+        echo "===> Installing (azure-cli)..." && \
+        python3 -m venv /venv/az \
+        &&\
+        /venv/az/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            azure-cli \
+        &&\
         \
-        docker \
-        docker-compose \
-        \
-        ansible-lint \
-        \
-    &&\
-    \
-    echo "===> Installing (azure-cli)..." && \
-    python3 -m venv /opt/az \
-    &&\
-    /opt/az/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        azure-cli \
-    &&\
-    \
-    echo "===> Installing (aws-cli)..." && \
-    python3 -m venv /opt/aws \
-    &&\
-    /opt/aws/bin/pip3 install --no-cache-dir --upgrade \
+        echo "===> Installing (aws-cli)..." && \
+        python3 -m venv /venv/aws \
+        &&\
+        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
         pip \
         awscli \
     &&\
     \
-    echo "===> Cleaning up ..."  && \
-    apt-get purge --autoremove -y \
-        gcc g++ \
-    && \
-    apt-get autoremove --purge -y && \
-    apt-get clean              -y && \
-    rm -rf \
-      "${HOME}/.cache" \
-        /var/lib/apt/lists/* \
-        /tmp/*               \
-        /var/tmp/*           \
-    && \
-    \
-    echo "OK!"
+    echo "..."
 
-ENV PATH="/opt/ans/bin:/opt/az/bin:/opt/aws/bin:$PATH"
+# #########################################################################
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+FROM final
+COPY --from=int--pip-stuff /venv   /venv
 
-FROM krallin/ubuntu-tini:16.04 as tini_src
+ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+
+# #########################################################################
+FROM krallin/ubuntu-tini:bionic as tini_src
 FROM final
 
 COPY --from=tini_src /usr/bin/tini* /usr/bin/
@@ -230,6 +254,8 @@ RUN \
     /usr/local/bin/tini -s -- ls && \
     /usr/local/bin/tini-static -s -- ls && \
     echo "OK!"
+
+# #########################################################################
 
 # default command: display Ansible version
 CMD \

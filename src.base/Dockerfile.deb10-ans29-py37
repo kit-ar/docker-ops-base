@@ -1,4 +1,5 @@
-FROM python:3.7-slim-buster as final
+ARG BASE_IMAGE=python:3.7-slim-buster
+FROM ${BASE_IMAGE} as final
 
 LABEL maintainer="webmaster@kit-ar.com"
 
@@ -120,9 +121,6 @@ RUN \
          tar -xz --strip-components=1 -C /usr/local/bin \
     && \
     \
-    echo "===> Adding Python build runtime..."  && \
-    apt-get -y install  \
-            gcc g++ \
     && \
     \
     echo "===> Configuring Python and PIP..."  && \
@@ -135,6 +133,29 @@ RUN \
     rm -rf /usr/bin/pip3 && \
     ln -s /usr/local/bin/pip3 /usr/bin/pip3 &&\
     \
+    pip3 list &&\
+    \
+    echo "===> Cleaning up ..."  && \
+    apt-get purge --autoremove -y \
+        gcc g++ \
+    && \
+    apt-get autoremove --purge -y && \
+    apt-get clean              -y && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/lib/apt/lists/* \
+        /tmp/*               \
+        /var/tmp/*           \
+    && \
+    echo "..."
+    
+# #########################################################################
+FROM ${BASE_IMAGE} as int--pip-stuff
+
+RUN \
+    apt-get -y install  \
+            gcc g++ make \
+    && \
     pip3 list &&\
     \
     echo "===> Installing Ansible (via PIP)..." \
@@ -151,67 +172,61 @@ RUN \
     # pip3 list && \
     \
     echo "===> Installing (tools)..." && \
-    pip3 install --no-cache-dir \
-        python-magic \
-        s3cmd \
-    && \
-    pip3 list && \
-    \
-    echo "===> Installing (ansible)..." && \
-    python3 -m venv /opt/ans \
-    &&\
-    /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        ansible${PIP__ANSIBLE_VER} \
-    &&\
-    /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
-        ansible[azure]${PIP__ANSIBLE_VER} \
+        python3 -m venv /venv/tools \
+        &&\
+        /venv/tools/bin/pip3 install --no-cache-dir \
+            python-magic \
+            s3cmd \
+        && \
         \
-        boto \
+        echo "===> Installing (ansible)..." && \
+        python3 -m venv /venv/ans \
+        &&\
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            ansible${PIP__ANSIBLE_VER} \
+        && \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+            ansible[azure]${PIP__ANSIBLE_VER} \
+            \
+            boto \
+            \
+            openshift \
+            ${PYHELM_PIP3} \
+            \
+            docker \
+            docker-compose \
+            \
+            ansible-lint \
+            \
+        &&\
         \
-        openshift \
-        ${PYHELM_PIP3} \
+        echo "===> Installing (azure-cli)..." && \
+        python3 -m venv /venv/az \
+        &&\
+        /venv/az/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            azure-cli \
+        &&\
         \
-        docker \
-        docker-compose \
-        \
-        ansible-lint \
-        \
-    &&\
-    \
-    echo "===> Installing (azure-cli)..." && \
-    python3 -m venv /opt/az \
-    &&\
-    /opt/az/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        azure-cli \
-    &&\
-    \
-    echo "===> Installing (aws-cli)..." && \
-    python3 -m venv /opt/aws \
-    &&\
-    /opt/aws/bin/pip3 install --no-cache-dir --upgrade \
+        echo "===> Installing (aws-cli)..." && \
+        python3 -m venv /venv/aws \
+        &&\
+        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
         pip \
         awscli \
     &&\
     \
-    echo "===> Cleaning up ..."  && \
-    apt-get purge --autoremove -y \
-        gcc g++ \
-    && \
-    apt-get autoremove --purge -y && \
-    apt-get clean              -y && \
-    rm -rf \
-        "${HOME}/.cache" \
-        /var/lib/apt/lists/* \
-        /tmp/*               \
-        /var/tmp/*           \
-    && \
-    \
-    echo "OK!"
+    echo "..."
+# #########################################################################
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+FROM final
+COPY --from=int--pip-stuff /venv   /venv
 
-ENV PATH="/opt/ans/bin:/opt/az/bin:/opt/aws/bin:$PATH"
+ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
 
+# #########################################################################
 FROM krallin/ubuntu-tini:bionic as tini_src
 FROM final
 
@@ -226,6 +241,8 @@ RUN \
     /usr/local/bin/tini -s -- ls && \
     /usr/local/bin/tini-static -s -- ls && \
     echo "OK!"
+    
+# #########################################################################
 
 # default command: display Ansible version
 CMD \

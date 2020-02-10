@@ -6,6 +6,11 @@
 DH_ID_base=ez123/ops-base
 
 # --------------------------------------------------------------------------
+dc-clean-ours-only:
+	docker images --filter=reference="ez123/ops-base*:*"
+	docker rm $$(docker ps -a -q); docker rmi $$(docker images -q --filter=reference="$(DH_ID_base)*:*")
+
+# --------------------------------------------------------------------------
 check-env-base:
 	test -n "$(TAG_VERSION)"   # TAG_VERSION.base
 	test -n "$(TIMESTAMP)"     # TIMESTAMP.base

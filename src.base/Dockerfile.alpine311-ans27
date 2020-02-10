@@ -119,9 +119,11 @@ RUN \
         && \
     echo "..."
 
+# #########################################################################
 #FROM alpine/helm:3.0.2 as int--helm
 FROM dtzar/helm-kubectl:3.0.2 as int--helm-kubectl
 
+# #########################################################################
 FROM final
 COPY --from=int--helm-kubectl /usr/local/bin/helm    /usr/bin/helm
 COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/bin/kubectl
@@ -141,6 +143,7 @@ RUN \
     pip3 list && \
     echo "..."
 
+# #########################################################################
 FROM ${BASE_IMAGE} as int--pip-stuff
 
 RUN \
@@ -228,7 +231,7 @@ FROM final
 COPY --from=int--pip-stuff /venv   /venv
 
 ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
-
+# #########################################################################
 # default command: display Ansible version
 CMD \
     ansible-playbook --version             && \
