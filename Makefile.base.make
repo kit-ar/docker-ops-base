@@ -138,15 +138,15 @@ shell-deb:                        shell-deb-base-10-ans29-py37
 shell-deb-base-10-ans29-py37:     r--shell-deb-base-10-ans29-py37
 
 shell-ubuntu:                     shell-ubuntu-base
-shell-ubuntu-base:                shell-ubuntu1804-base-ans29
-shell-ubuntu1804-base-ans29:      r--shell-ubuntu-base-1804-ans29
-shell-ubuntu1804-base-ans27:      r--shell-ubuntu-base-1804-ans27
-shell-ubuntu1604-base-ans27:      r--shell-ubuntu-base-1604-ans27
-# shell-ubuntu1604-base-ans26:      r--shell-ubuntu-base-1604-ans26
+shell-ubuntu-base:                shell-ubuntu-base-1804-ans29
+shell-ubuntu-base-1804-ans29:      r--shell-ubuntu-base-1804-ans29
+shell-ubuntu-base-1804-ans27:      r--shell-ubuntu-base-1804-ans27
+shell-ubuntu-base-1604-ans27:      r--shell-ubuntu-base-1604-ans27
+# shell-ubuntu-base-1604-ans26:      r--shell-ubuntu-base-1604-ans26
 # shell-ubuntu1404-base:           r--shell-ubuntu-base-1404
 
 # --------------------------------------------------------------------------
-TEST_TAG=-181112c
+# TEST_TAG=-181112c
 
 # --------------------------------------------------------------------------
 test-alpine:             test-alpine-base
@@ -181,15 +181,15 @@ test-deb-base-10-ans29-py37:     r--test-deb-base-10-ans29-py37$(TEST_TAG)
 
 # --------------------------------------------------------------------------
 test-ubuntu:                     test-ubuntu-base
-test-ubuntu-base:                test-ubuntu1804-base-ans29
-test-ubuntu-base:                test-ubuntu1804-base-ans27
-test-ubuntu-base:                test-ubuntu1604-base-ans27
-# test-ubuntu-base:                test-ubuntu1604-base-ans26
+test-ubuntu-base:                test-ubuntu-base-1804-ans29
+test-ubuntu-base:                test-ubuntu-base-1804-ans27
+test-ubuntu-base:                test-ubuntu-base-1604-ans27
+# test-ubuntu-base:                test-ubuntu-base-1604-ans26
 # test-ubuntu-base:                test-ubuntu1404-base
 
-test-ubuntu1804-base-ans29:      r--test-ubuntu-base-1804-ans29$(TEST_TAG)
-test-ubuntu1804-base-ans27:      r--test-ubuntu-base-1804-ans27$(TEST_TAG)
-test-ubuntu1604-base-ans27:      r--test-ubuntu-base-1604-ans27$(TEST_TAG)
-# test-ubuntu1604-base-ans26:      r--test-ubuntu-base-1604-ans26$(TEST_TAG)
+test-ubuntu-base-1804-ans29:      r--test-ubuntu-base-1804-ans29$(TEST_TAG)
+test-ubuntu-base-1804-ans27:      r--test-ubuntu-base-1804-ans27$(TEST_TAG)
+test-ubuntu-base-1604-ans27:      r--test-ubuntu-base-1604-ans27$(TEST_TAG)
+# test-ubuntu-base-1604-ans26:      r--test-ubuntu-base-1604-ans26$(TEST_TAG)
 # test-ubuntu1404-base:            r--test-ubuntu-base-1404$(TEST_TAG)
 
