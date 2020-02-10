@@ -10,7 +10,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE_VER="~=2.7.0"
-ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 ARG HELM_VERSION=3.0.3
 ARG KUBECTL_VERSION=1.17.2
 
@@ -234,8 +233,8 @@ RUN \
         python3 -m venv /venv/aws \
         &&\
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        awscli \
+            pip \
+            awscli \
         &&\
         echo "..."
 

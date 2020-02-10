@@ -106,12 +106,12 @@ RUN \
     && \
     echo "..."
 
-RUN \
-    echo "===> Adding Docker cli..."  && \
-    apk --update --no-cache add \
-            docker-cli \
-        && \
-    echo "..."
+# RUN \
+#     echo "===> Adding Docker cli..."  && \
+#     apk --update --no-cache add \
+#             docker-cli \
+#         && \
+#     echo "..."
 
 RUN \
     echo "===> Adding Python runtime..."  && \
@@ -157,6 +157,7 @@ RUN \
             build-base  \
             openssl-dev \
             libffi-dev \
+            libc-dev \
     && \
     pip3 list &&\
     \
@@ -221,8 +222,8 @@ RUN \
         python3 -m venv /venv/aws \
         &&\
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        awscli \
+            pip \
+            awscli \
     &&\
     \
     echo "..."
@@ -241,7 +242,7 @@ COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/local/bin/kubectl
 # =========================================================================
 # we rely on the intermediate image and the final image being the same;
 # the source and target location must be the same as venv relies on hardwired python path
-COPY --from=iint--misc-tools /venv   /venv
+COPY --from=int--misc-tools /venv   /venv
 
 RUN \
     du -hd1 /venv &&\

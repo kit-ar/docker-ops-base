@@ -18,21 +18,23 @@ check-env-base:
 	test -n "$(TIMESTAMP)"     # TIMESTAMP.base
 
 # --------------------------------------------------------------------------
-build-base: build-alpine-base build-ubuntu-base build-deb-base
+build-base: build-alpine-base
+build-base: build-ubuntu-base
+build-base: build-deb-base
 
-build-alpine-base: \
-	build-alpine-base-edge \
-	build-alpine-base-311-ans29-py38 \
-	build-alpine-base-311-ans29 \
-	build-alpine-base-311-ans27 \
-	build-alpine-base-38-ans27 \
-	build-alpine-base-34-ans27
 
-	# build-alpine-base-310-ans28
-	# build-alpine-base-39-ans28
-	# build-alpine-base-38
-	# build-alpine-base-37
-	# build-alpine-base-34-ans22
+build-alpine-base: build-alpine-base-edge
+build-alpine-base: build-alpine-base-311-ans29-py38
+build-alpine-base: build-alpine-base-311-ans29
+build-alpine-base: build-alpine-base-311-ans27
+#build-alpine-base: build-alpine-base-310-ans28
+#build-alpine-base: build-alpine-base-39-ans28
+build-alpine-base: build-alpine-base-38-ans27
+#build-alpine-base: build-alpine-base-38
+#build-alpine-base: build-alpine-base-37
+build-alpine-base: build-alpine-base-34-ans27
+#build-alpine-base: build-alpine-base-34-ans22
+
 
 build-alpine-base-edge:           r--build-alpine-base-edge
 build-alpine-base-311-ans29-py38: r--build-alpine-base-311-ans29-py38
@@ -46,17 +48,15 @@ build-alpine-base-38-ans27:       r--build-alpine-base-38-ans27
 build-alpine-base-34-ans27:       r--build-alpine-base-34-ans27
 # build-alpine-base-34-ans22:       r--build-alpine-base-34-ans22
 
-build-deb-base: \
-	build-deb-base-10-ans29-py37
+build-deb-base: build-deb-base-10-ans29-py37
 
 build-deb-base-10-ans29-py37:    r--build-deb-base-10-ans29-py37
 
-build-ubuntu-base: \
-	build-ubuntu-base-1804-ans29 \
-	build-ubuntu-base-1804-ans27 \
-	build-ubuntu-base-1604-ans27
-	# build-ubuntu-base-1604-ans26
-	# build-ubuntu-base-1404
+build-ubuntu-base: build-ubuntu-base-1804-ans29
+build-ubuntu-base: build-ubuntu-base-1804-ans27
+build-ubuntu-base: build-ubuntu-base-1604-ans27
+# build-ubuntu-base: build-ubuntu-base-1604-ans26
+# build-ubuntu-base: build-ubuntu-base-1404
 
 build-ubuntu-base-1804-ans29:    r--build-ubuntu-base-1804-ans29
 build-ubuntu-base-1804-ans27:    r--build-ubuntu-base-1804-ans27
@@ -67,57 +67,50 @@ build-ubuntu-base-1604-ans27:    r--build-ubuntu-base-1604-ans27
 # --------------------------------------------------------------------------
 pull-base: pull-alpine-base pull-deb-base pull-ubuntu-base
 
-pull-alpine-base: check-env-base \
-	r--pull-alpine-base-edge \
-	r--pull-alpine-base-311-ans29-py38 \
-	r--pull-alpine-base-311-ans29 \
-	r--pull-alpine-base-311-ans27 \
-	r--pull-alpine-base-38-ans27 \
-	r--pull-alpine-base-34-ans27 \
+pull-alpine-base: check-env-base r--pull-alpine-base-edge
+pull-alpine-base: check-env-base r--pull-alpine-base-311-ans29-py38
+pull-alpine-base: check-env-base r--pull-alpine-base-311-ans29
+pull-alpine-base: check-env-base r--pull-alpine-base-311-ans27
+# pull-alpine-base: check-env-base r--pull-alpine-base-310-ans28
+# pull-alpine-base: check-env-base r--pull-alpine-base-39-ans28
+pull-alpine-base: check-env-base r--pull-alpine-base-38-ans27
+# pull-alpine-base: check-env-base r--pull-alpine-base-38
+# pull-alpine-base: check-env-base r--pull-alpine-base-37
+pull-alpine-base: check-env-base r--pull-alpine-base-34-ans27
+# pull-alpine-base: check-env-base r--pull-alpine-base-34-ans22
 
-	# docker pull $(DH_ID_base):alpine
-	# r--pull-alpine-base-310-ans28
-	# r--pull-alpine-base-39-ans28
-	# r--pull-alpine-base-38
-	# r--pull-alpine-base-37
-	# r--pull-alpine-base-34-ans22
+pull-deb-base: check-env-base r--pull-deb-base-10-ans29-py37
 
-pull-deb-base:
-	r--pull-deb-base-10-ans29-py37
-
-pull-ubuntu-base:
-	r--pull-ubuntu-base-1804-ans29
-	r--pull-ubuntu-base-1804-ans27
-	r--pull-ubuntu-base-1604-ans27
-	# r--pull-ubuntu-base-1604-ans26
-	# r--pull-ubuntu-base-1404
+pull-ubuntu-base: check-env-base r--pull-ubuntu-base-1804-ans29
+pull-ubuntu-base: check-env-base r--pull-ubuntu-base-1804-ans27
+pull-ubuntu-base: check-env-base r--pull-ubuntu-base-1604-ans27
+# pull-ubuntu-base: check-env-base r--pull-ubuntu-base-1604-ans26
+# pull-ubuntu-base: check-env-base r--pull-ubuntu-base-1404
 
 # --------------------------------------------------------------------------
-push-base: push-alpine-base push-deb-base push-ubuntu-base
+push-base: push-alpine-base
+push-base: push-deb-base
+push-base: push-ubuntu-base
 
-push-alpine-base: check-env-base \
-	r--push-alpine-base-edge \
-	r--push-alpine-base-311-ans29-py38 \
-	r--push-alpine-base-311-ans29 \
-	r--push-alpine-base-311-ans27 \
-	r--push-alpine-base-38-ans27 \
-	r--push-alpine-base-34-ans27 \
+push-alpine-base: check-env-base r--push-alpine-base-edge
+push-alpine-base: check-env-base r--push-alpine-base-311-ans29-py38
+push-alpine-base: check-env-base r--push-alpine-base-311-ans29
+push-alpine-base: check-env-base r--push-alpine-base-311-ans27
+# push-alpine-base: check-env-base r--push-alpine-base-310-ans28
+# push-alpine-base: check-env-base r--push-alpine-base-39-ans28
+push-alpine-base: check-env-base r--push-alpine-base-38-ans27
+# push-alpine-base: check-env-base r--push-alpine-base-38
+# push-alpine-base: check-env-base r--push-alpine-base-37
+push-alpine-base: check-env-base r--push-alpine-base-34-ans27
+# push-alpine-base: check-env-base r--push-alpine-base-34-ans22
 
-	# r--push-alpine-base-310-ans28
-	# r--push-alpine-base-39-ans28
-	# r--push-alpine-base-38
-	# r--push-alpine-base-37
-	# r--push-alpine-base-34-ans22
+push-deb-base: check-env-base r--push-deb-base-10-ans29-py37
 
-push-deb-base: check-env-base
-	r--push-deb-base-10-ans29-py37
-
-push-ubuntu-base: check-env-base
-	r--push-ubuntu-base-1804-ans29
-	r--push-ubuntu-base-1804-ans27
-	r--push-ubuntu-base-1604-ans27
-	# r--push-ubuntu-base-1604-ans26
-	# r--push-ubuntu-base-1404
+push-ubuntu-base: check-env-base r--push-ubuntu-base-1804-ans29
+push-ubuntu-base: check-env-base r--push-ubuntu-base-1804-ans27
+push-ubuntu-base: check-env-base r--push-ubuntu-base-1604-ans27
+# push-ubuntu-base: check-env-base r--push-ubuntu-base-1604-ans26
+# push-ubuntu-base: check-env-base r--push-ubuntu-base-1404
 
 # --------------------------------------------------------------------------
 shell-alpine-base: shell-alpine-baseedge

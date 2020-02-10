@@ -161,6 +161,8 @@ ARG HELM_VERSION
 ARG KUBECTL_VERSION
 ARG APT__PYHTON3_VER
 
+SHELL ["/bin/bash", "-c"]
+
 # From alpine 3.7 onwards, since ansible2+4+ already supports python3,
 # we no longer install/support python2 by default.
 # Also, we do not pretend pip will be available. Use pip3 instead.
@@ -241,8 +243,8 @@ RUN \
         python3 -m venv /venv/aws \
         &&\
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        awscli \
+            pip \
+            awscli \
         &&\
         echo "..."
 

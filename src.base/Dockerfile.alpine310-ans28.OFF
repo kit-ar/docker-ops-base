@@ -10,7 +10,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #
 
 ENV PIP__ANSIBLE_VER="~=2.8.0"
-ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
 ## uncomment if really needed

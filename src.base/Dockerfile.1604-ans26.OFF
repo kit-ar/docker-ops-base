@@ -8,7 +8,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE_VER="~=2.6.0"
-ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
 ## uncomment if really needed

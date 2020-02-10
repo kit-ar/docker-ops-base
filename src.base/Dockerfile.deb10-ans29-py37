@@ -10,7 +10,6 @@ LABEL maintainer="webmaster@kit-ar.com"
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE_VER="~=2.9.0"
-ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 ARG HELM_VERSION=3.0.3
 ARG KUBECTL_VERSION=1.17.2
 
@@ -125,8 +124,6 @@ RUN \
          tar -xz --strip-components=1 -C /usr/local/bin \
     && \
     \
-    && \
-    \
     echo "===> Configuring Python and PIP..."  && \
     echo "===> PIP3 has an issue when upgraded to v18+..."  && \
     pip3 list &&\
@@ -231,8 +228,8 @@ RUN \
         python3 -m venv /venv/aws \
         &&\
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        awscli \
+            pip \
+            awscli \
         &&\
         echo "..."
 

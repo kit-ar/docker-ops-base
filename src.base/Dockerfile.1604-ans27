@@ -10,7 +10,6 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE_VER="~=2.7.0"
-ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
 ARG HELM_VERSION=3.0.3
 ARG KUBECTL_VERSION=1.17.2
 
@@ -136,7 +135,7 @@ RUN \
     echo "===> Configuring Python and PIP..."  && \
     echo "===> PIP3 has an issue when upgraded to v18+..."  && \
     pip3 list &&\
-    pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
+    pip3 install --no-cache-dir --upgrade \
         pip${PIP__PIP3_VER} setuptools wheel \
         pip-tools \
     && \
@@ -165,15 +164,19 @@ FROM ${BASE_IMAGE} as int--misc-tools
 RUN \
     apt-get update &&\
     apt-get -y install  \
+            curl \
+            bash \
+            libssl-dev libffi-dev \
             python3-dev${APT__PYHTON3_VER} \
             python3${APT__PYHTON3_VER} \
             python3-pip \
             python3-venv \
-            curl \
     && \
     pip3 list &&\
     \
     echo "..."
+
+SHELL ["/bin/bash", "-c"]
 
 RUN \
     echo "===> Installing Ansible (via PIP)..." \
@@ -232,8 +235,8 @@ RUN \
         python3 -m venv /venv/aws \
         &&\
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-        pip \
-        awscli \
+            pip \
+            awscli \
         &&\
         echo "..."
 
