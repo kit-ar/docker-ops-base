@@ -112,7 +112,7 @@ RUN \
     \
     echo "===> Installing NodeJS 6.x..."  && \
     apk --update add \
-            nodejs npm yarn \
+            nodejs \
     && \
     \
     echo "===> Adding Ruby 2.x..."  && \
