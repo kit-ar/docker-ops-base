@@ -16,8 +16,10 @@ install:
   # - curl -sSL https://get.docker.com/ | sudo sh
   # - sudo pip2 install --upgrade pip setuptools wheel docker-compose
   - sudo docker-compose --version
-  - sudo docker-compose --version
+  - sudo docker         --version
 
 script:
-  - sudo make all
+  - sudo make alpine
+  - sudo make ubntu
+  - sudo make deb
   - sudo make test-base
