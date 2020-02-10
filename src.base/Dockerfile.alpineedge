@@ -1,21 +1,15 @@
-FROM alpine:edge as final
+ARG BASE_IMAGE=alpine:edge
+
+ARG PIP__ANSIBLE_VER"
+
+ARG HELM_VERSION=3.0.3
+
+# #########################################################################
+FROM ${BASE_IMAGE} as final
 
 LABEL maintainer="webmaster@kit-ar.com"
 
 # golang is not installed in the alpine version
-
-# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
-# we no longer install/support python2 by default.
-# Also, we do not pretend pip will be available. Use pip3 instead.
-#
-
-ENV PIP__ANSIBLE_VER=
-ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
-
-## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
-## uncomment if really needed
-# ENV PYHELM_PIP3=pyhelm
-# ENV PYHELM_APK_GRPCIO=py3-grpcio@testing
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -24,9 +18,6 @@ RUN \
             openssl \
         && \
     echo "..."
-
-RUN \
-    [ "${PYHELM_APK_GRPCIO}" == "" ] || echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 
 RUN \
     echo "===> Adding usefull packages for devops shell-works..."  && \
@@ -80,7 +71,7 @@ RUN \
         && \
     \
     sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
-    &&\
+    && \
     echo "..."
 SHELL ["/bin/bash", "-c"]
 
@@ -122,13 +113,6 @@ RUN \
         && \
     echo "..."
 
-#FROM alpine/helm:3.0.2 as int-helm
-FROM dtzar/helm-kubectl:3.0.2 as int-helm-kubectl
-
-FROM final
-COPY --from=int-helm-kubectl /usr/local/bin/helm    /usr/bin/helm
-COPY --from=int-helm-kubectl /usr/local/bin/kubectl /usr/bin/kubectl
-
 RUN \
     echo "===> Adding Python runtime..."  && \
     apk --update --no-cache add \
@@ -136,44 +120,82 @@ RUN \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
+    pip3 list &&\
     pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
         pip setuptools wheel \
         pip-tools \
     && \
+    pip3 list && \
+    \
+    echo "===> Cleaning up ..."  && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/cache/apk/* \
+        /tmp/*           \
+        /var/tmp/*       \
+    && \
+    echo "..."
+
+# #########################################################################
+FROM ${BASE_IMAGE} as int--misc-tools
+ARG PIP__ANSIBLE_VER
+ARG KUBECTL_VERSION
+
+# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
+# we no longer install/support python2 by default.
+# Also, we do not pretend pip will be available. Use pip3 instead.
+
+## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
+## uncomment if really needed
+# ENV PYHELM_PIP3=pyhelm
+# ENV PYHELM_APK_GRPCIO=py3-grpcio@testing
+
+RUN \
+    [ "${PYHELM_APK_GRPCIO}" == "" ] || echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+
+
+RUN \
+    apk --update --no-cache add \
+        --virtual build-dependencies \
+            python3-dev \
+            build-base  \
+            openssl-dev \
+            libffi-dev \
+            ${PYHELM_APK_GRPCIO} \
+    && \
     pip3 list &&\
+    \
     echo "..."
 
 RUN \
-        apk --update --no-cache add \
-            --virtual build-dependencies \
-                python3-dev \
-                build-base  \
-                openssl-dev \
-                libffi-dev \
-        && \
-        pip3 list &&\
-    \
-        echo "===> Installing Ansible (via PIP)..." \
-        echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
-        echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
-        echo "===> as of 2020-02-09, we could not find any other option..." \
-        echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
-        \
-        echo "===> Installing (tools)..." && \
-        pip3 install --no-cache-dir \
+    echo "===> Installing Ansible (via PIP)..." \
+    echo "===> Installing ansible and ansible[azure] in separate steps..." \
+    echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
+    echo "===> Installing azure-cli and ansible[azure] in separate virtuaenv to prevent version conflicts..." \
+    echo "===> as of 2020-02-09, we could not find any other option..." \
+    echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
+    && \
+    echo "..."
+
+RUN \
+    echo "===> Installing (tools)..." && \
+        python3 -m venv /venv/tools \
+        &&\
+        /venv/tools/bin/pip3 install --no-cache-dir \
             python-magic \
             s3cmd \
         && \
-        pip3 list && \
-        \
+        echo "..."
+
+RUN \
         echo "===> Installing (ansible)..." && \
-        python3 -m venv /opt/ans \
+        python3 -m venv /venv/ans \
         &&\
-        /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             pip \
             ansible${PIP__ANSIBLE_VER} \
         && \
-        /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             ansible[azure]${PIP__ANSIBLE_VER} \
             \
             boto \
@@ -187,41 +209,55 @@ RUN \
             ansible-lint \
             \
         &&\
-        \
+        echo "..."
+
+RUN \
         echo "===> Installing (azure-cli)..." && \
-        python3 -m venv /opt/az \
+        python3 -m venv /venv/az \
         &&\
-        /opt/az/bin/pip3 install --no-cache-dir --upgrade \
+        /venv/az/bin/pip3 install --no-cache-dir --upgrade \
             pip \
             azure-cli \
         &&\
-        \
+        echo "..."
+
+RUN \
         echo "===> Installing (aws-cli)..." && \
-        python3 -m venv /opt/aws \
+        python3 -m venv /venv/aws \
         &&\
-        /opt/aws/bin/pip3 install --no-cache-dir --upgrade \
-            pip \
-            awscli \
-        && \
+        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
+        pip \
+        awscli \
+    &&\
     \
-    echo "===> Cleaning up ..."  && \
-    apk del --update --no-cache \
-        build-dependencies \
-    && \
-    rm -rf \
-      "${HOME}/.cache" \
-       /var/cache/apk/* \
-       /tmp/*               \
-       /var/tmp/*           \
-    && \
+    echo "..."
+
+# #########################################################################
+#FROM alpine/helm:${HELM_VERSION} as int--helm
+FROM dtzar/helm-kubectl:${HELM_VERSION} as int--helm-kubectl
+
+# #########################################################################
+FROM final
+
+# =========================================================================
+COPY --from=int--helm-kubectl /usr/local/bin/helm    /usr/local/bin/helm
+COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/local/bin/kubectl
+
+# =========================================================================
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+COPY --from=iint--misc-tools /venv   /venv
+
+RUN \
+    du -hd1 /venv &&\
     \
-    echo "OK!"
+    echo "..."
 
-ENV PATH="/opt/ans/bin:/opt/az/bin:/opt/aws/bin:$PATH"
-
+ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+# #########################################################################
 # default command: display Ansible version
 CMD \
-    ansible-playbook --version             && \
+    ansible-playbook --version | head -n 1 && \
     python3 --version          | head -n 1 && \
     pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
@@ -230,4 +266,6 @@ CMD \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
+    helm    version --client   | head -n 1 && \
+    kubectl version --client   | head -n 1 && \
     openssl version            | head -n 1

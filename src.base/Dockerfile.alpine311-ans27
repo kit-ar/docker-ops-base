@@ -1,21 +1,15 @@
 ARG BASE_IMAGE=alpine:3.11
+
+ARG PIP__ANSIBLE_VER="~=2.7.0"
+
+ARG HELM_VERSION=3.0.3
+
+# #########################################################################
 FROM ${BASE_IMAGE} as final
 
-MAINTAINER HighSkillz <webdev@highskillz.com>
+LABEL maintainer="webmaster@kit-ar.com"
 
 # golang is not installed in the alpine version
-
-# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
-# we no longer install/support python2 by default.
-# Also, we do not pretend pip will be available. Use pip3 instead.
-#
-
-ENV PIP__ANSIBLE_VER="~=2.7.0"
-ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
-
-## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
-## uncomment if really needed
-# ENV PYHELM_PIP3=pyhelm
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -119,15 +113,6 @@ RUN \
         && \
     echo "..."
 
-# #########################################################################
-#FROM alpine/helm:3.0.2 as int--helm
-FROM dtzar/helm-kubectl:3.0.2 as int--helm-kubectl
-
-# #########################################################################
-FROM final
-COPY --from=int--helm-kubectl /usr/local/bin/helm    /usr/bin/helm
-COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/bin/kubectl
-
 RUN \
     echo "===> Adding Python runtime..."  && \
     apk --update --no-cache add \
@@ -141,10 +126,29 @@ RUN \
         pip-tools \
     && \
     pip3 list && \
+    \
+    echo "===> Cleaning up ..."  && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/cache/apk/* \
+        /tmp/*           \
+        /var/tmp/*       \
+    && \
     echo "..."
 
 # #########################################################################
-FROM ${BASE_IMAGE} as int--pip-stuff
+FROM ${BASE_IMAGE} as int--misc-tools
+ARG PIP__ANSIBLE_VER
+ARG KUBECTL_VERSION
+
+# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
+# we no longer install/support python2 by default.
+# Also, we do not pretend pip will be available. Use pip3 instead.
+
+## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
+## uncomment if really needed
+# ENV PYHELM_PIP3=pyhelm
+
 
 RUN \
     apk --update --no-cache add \
@@ -154,22 +158,31 @@ RUN \
             openssl-dev \
             libffi-dev \
     && \
-    pip3 list && \
+    pip3 list &&\
     \
-        echo "===> Installing Ansible (via PIP)..." \
-        echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
-        echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
-        echo "===> as of 2020-02-09, we could not find any other option..." \
-        echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
-        \
-        echo "===> Installing (tools)..." && \
+    echo "..."
+
+RUN \
+    echo "===> Installing Ansible (via PIP)..." \
+    echo "===> Installing ansible and ansible[azure] in separate steps..." \
+    echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
+    echo "===> Installing azure-cli and ansible[azure] in separate virtuaenv to prevent version conflicts..." \
+    echo "===> as of 2020-02-09, we could not find any other option..." \
+    echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
+    && \
+    echo "..."
+
+RUN \
+    echo "===> Installing (tools)..." && \
         python3 -m venv /venv/tools \
         &&\
         /venv/tools/bin/pip3 install --no-cache-dir \
             python-magic \
             s3cmd \
         && \
-        \
+        echo "..."
+
+RUN \
         echo "===> Installing (ansible)..." && \
         python3 -m venv /venv/ans \
         &&\
@@ -191,7 +204,9 @@ RUN \
             ansible-lint \
             \
         &&\
-        \
+        echo "..."
+
+RUN \
         echo "===> Installing (azure-cli)..." && \
         python3 -m venv /venv/az \
         &&\
@@ -199,42 +214,45 @@ RUN \
             pip \
             azure-cli \
         &&\
-        \
+        echo "..."
+
+RUN \
         echo "===> Installing (aws-cli)..." && \
         python3 -m venv /venv/aws \
         &&\
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-            pip \
-            awscli \
-        &&\
+        pip \
+        awscli \
+    &&\
     \
     echo "..."
-    #     && \
-    # \
-    # echo "===> Cleaning up ..."  && \
-    # apk del --update --no-cache \
-    #     build-dependencies \
-    # && \
-    # rm -rf \
-    #     "${HOME}/.cache" \
-    #     /var/cache/apk/* \
-    #     /tmp/*           \
-    #     /var/tmp/*       \
-    # && \
-    # \
-    # echo "OK!"
 
 # #########################################################################
+#FROM alpine/helm:${HELM_VERSION} as int--helm
+FROM dtzar/helm-kubectl:${HELM_VERSION} as int--helm-kubectl
+
+# #########################################################################
+FROM final
+
+# =========================================================================
+COPY --from=int--helm-kubectl /usr/local/bin/helm    /usr/local/bin/helm
+COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/local/bin/kubectl
+
+# =========================================================================
 # we rely on the intermediate image and the final image being the same;
 # the source and target location must be the same as venv relies on hardwired python path
-FROM final
-COPY --from=int--pip-stuff /venv   /venv
+COPY --from=iint--misc-tools /venv   /venv
+
+RUN \
+    du -hd1 /venv &&\
+    \
+    echo "..."
 
 ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
 # #########################################################################
 # default command: display Ansible version
 CMD \
-    ansible-playbook --version             && \
+    ansible-playbook --version | head -n 1 && \
     python3 --version          | head -n 1 && \
     pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
@@ -243,4 +261,6 @@ CMD \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
+    helm    version --client   | head -n 1 && \
+    kubectl version --client   | head -n 1 && \
     openssl version            | head -n 1

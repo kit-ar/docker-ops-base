@@ -1,5 +1,5 @@
 # v2.4.1    2020-02-07     webmaster@highskillz.com
-TAG_VERSION=200210e
+TAG_VERSION=200210g
 
 # .ONESHELL:
 .SHELLFLAGS = -e
@@ -18,12 +18,17 @@ include ./Makefile.base.make
 # --------------------------------------------------------------------------
 build: all
 
-all: build-alpine build-ubuntu build-ubdebuntu
+all: build-alpine build-ubuntu build-deb
 
 #build-alpine: build-alpine-base build-alpine-provis
 build-alpine: build-alpine-base
 build-ubuntu: build-ubuntu-base
 build-deb:    build-deb-base
+
+build-latest: \
+	build-alpine-base-311-ans29 \
+	build-ubuntu-base-1804-ans29 \
+	build-deb-base-10-ans29-py37
 
 pull: pull-alpine pull-ubuntu pull-deb
 pull-alpine: pull-alpine-base

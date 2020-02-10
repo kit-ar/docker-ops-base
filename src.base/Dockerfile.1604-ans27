@@ -11,6 +11,8 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV PIP__ANSIBLE_VER="~=2.7.0"
 ENV PIP__UPGR_STRAT_X="--upgrade-strategy eager"
+ARG HELM_VERSION=3.0.3
+ARG KUBECTL_VERSION=1.17.2
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
 ## uncomment if really needed
@@ -158,7 +160,7 @@ RUN \
     echo "..."
 
 # #########################################################################
-FROM ${BASE_IMAGE} as int--pip-stuff
+FROM ${BASE_IMAGE} as int--misc-tools
 
 RUN \
     apt-get update &&\
@@ -167,30 +169,33 @@ RUN \
             python3${APT__PYHTON3_VER} \
             python3-pip \
             python3-venv \
+            curl \
     && \
     pip3 list &&\
     \
+    echo "..."
+
+RUN \
     echo "===> Installing Ansible (via PIP)..." \
-    echo "===> Installing azure_rm and azure-cli in separate steps to prevent version regressions..." \
+    echo "===> Installing ansible and ansible[azure] in separate steps..." \
     echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
+    echo "===> Installing azure-cli and ansible[azure] in separate virtuaenv to prevent version conflicts..." \
     echo "===> as of 2020-02-09, we could not find any other option..." \
     echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
     && \
-    \
-    # echo "===> Installing (python3-*) to speedup build ..." && \
-    # apt-get -y install  \
-    #         python3-cffi \
-    # && \
-    # pip3 list && \
-    \
-    echo "===> Installing (tools)..." && \
+    echo "..."
+
+RUN \
+        echo "===> Installing (tools)..." && \
         python3 -m venv /venv/tools \
         &&\
         /venv/tools/bin/pip3 install --no-cache-dir \
             python-magic \
             s3cmd \
         && \
-        \
+        echo "..."
+
+RUN \
         echo "===> Installing (ansible)..." && \
         python3 -m venv /venv/ans \
         &&\
@@ -220,15 +225,42 @@ RUN \
             pip \
             azure-cli \
         &&\
-        \
+        echo "..."
+
+RUN \
         echo "===> Installing (aws-cli)..." && \
         python3 -m venv /venv/aws \
         &&\
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
         pip \
         awscli \
+        &&\
+        echo "..."
+
+RUN \
+    if [ "${HELM_VERSION}" == "" ]; then \
+        echo " ===> Installing HELM latest..." ; \
+        (curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash) &&\
+        echo "..."; \
+    else \
+        echo " ===> Installing HELM ${HELM_VERSION}..." ; \
+        (curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 -v "${HELM3_VERSION} "| bash) &&\
+        echo "..."; \
+    fi;
+
+RUN \
+    cd /usr/local/bin &&\
+    if [ "${KUBECTL_VERSION}" == "" ]; then \
+        echo " ===> Installing Kubectl latest..." ; \
+        (curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl | bash) &&\
+        echo "..."; \
+    else \
+        echo " ===> Installing Kubectl ${KUBECTL_VERSION}..." ; \
+        (curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl | bash) &&\
+        echo "..."; \
+    fi &&\
+    chmod a+x kubectl \
     &&\
-    \
     echo "..."
 
 # #########################################################################
@@ -251,9 +283,12 @@ RUN \
     echo "OK!"
 
 # =========================================================================
+COPY --from=int--misc-tools /usr/local/bin/kubectl   /usr/local/bin
+COPY --from=int--misc-tools /usr/local/bin/helm      /usr/local/bin
+
 # we rely on the intermediate image and the final image being the same;
 # the source and target location must be the same as venv relies on hardwired python path
-COPY --from=int--pip-stuff /venv   /venv
+COPY --from=int--misc-tools /venv   /venv
 
 RUN \
     du -hd1 /venv &&\
@@ -276,4 +311,6 @@ CMD \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
+    helm    version --client   | head -n 1 && \
+    kubectl version --client   | head -n 1 && \
     openssl version            | head -n 1
