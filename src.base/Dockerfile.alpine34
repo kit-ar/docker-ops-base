@@ -1,0 +1,153 @@
+FROM alpine:3.4
+
+MAINTAINER HighSkillz <webdev@highskillz.com>
+
+# golang is not installed in the alpine version
+
+# To preserve the behaviour of pip==pip2 we need to pay attention to
+# the order in which things are installed.
+# This is the reason for us to
+#       install pip3
+#       remove $(which pip), and then
+#       reinstall pip2
+# Nevertheless, we use pip2 on the rest of the script "just in case"
+
+ENV ANSIBLE_FROM_PIP=1
+ENV PIP__ANSIBLE_VER="~=2.2.0"
+
+RUN \
+    echo "===> Updating TLS certificates..."         && \
+    apk --update add \
+            ca-certificates \
+            openssl \
+    && \
+    \
+    echo "===> Adding Python runtime..."  && \
+    apk --update add \
+            python py-pip \
+            python3 \
+        && \
+    echo "===> Adding usefull packages for devops shell-works..."  && \
+    apk --update add \
+            coreutils \
+            openssh-client \
+            rsync \
+            tar \
+            make \
+            \
+            tini \
+            \
+            file \
+            bash \
+            # bash-completion \
+            less \
+            nano \
+            \
+            curl \
+            wget \
+            \
+            zip \
+            xz \
+            unrar \
+            \
+            git \
+            \
+            mc \
+            mosh \
+            screen \
+            \
+            lsscsi \
+            \
+            htop \
+            atop \
+            sysstat \
+            iftop \
+            lsof \
+            util-linux \
+            mtr \
+            \
+            postgresql-client \
+            mysql-client \
+            \
+            py-cffi \
+        && \
+    \
+    echo "===> Configuring Python and PIP..."  && \
+    pip3 install --upgrade pip setuptools wheel && \
+    pip2 install --upgrade pip setuptools wheel && \
+    rm $(which pip) && \
+    ln -s $(which pip2) /usr/local/bin/pip && \
+    \
+    echo Making sure pip is set to python2 && \
+    pip --version | grep "python 2\."  && \
+    \
+    ( \
+      if [ "${ANSIBLE_FROM_PIP}" == "0" ]; then \
+        echo " ===> Installing Ansible (from apk)..." \
+        ; \
+        apk --update add \
+            ansible \
+        ; \
+      else \
+        echo "===> Installing Ansible (via PIP)..." \
+        ; \
+        apk --update add --virtual build-dependencies \
+            python-dev \
+            build-base  \
+            openssl-dev \
+            libffi-dev \
+        ; \
+        pip2 install --upgrade \
+            ansible${PIP__ANSIBLE_VER} \
+            \
+            # Make sure we can run ansible's docker scripts
+            docker \
+            docker-compose \
+        ; \
+        apk del build-dependencies \
+        ; \
+      fi \
+    ) \
+    && \
+    \
+    echo "===> Installing NodeJS 6.x..."  && \
+    apk --update add \
+            nodejs npm yarn \
+    && \
+    \
+    echo "===> Adding Ruby 2.x..."  && \
+    apk --update add \
+            ruby \
+    && \
+    echo "===> Adding docker-ssh-exec..."  && \
+    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+         tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
+    \
+    echo "===> Cleaning up ..."  && \
+    rm -rf \
+      "${HOME}/.cache" \
+       /var/cache/apk/* \
+       /tmp/*               \
+       /var/tmp/*           \
+    && \
+    \
+    sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
+    && \
+    \
+    echo "OK!"
+
+SHELL ["/bin/bash", "-c"]
+
+# default command: display Ansible version
+CMD \
+    ansible-playbook --version             && \
+    python  --version          | head -n 1 && \
+    python3 --version          | head -n 1 && \
+    pip  --version             | head -n 1 && \
+    pip3 --version             | head -n 1 && \
+    node --version             | head -n 1 && \
+    ruby --version             | head -n 1 && \
+    git  --version             | head -n 1 && \
+    docker-compose --version   | head -n 1 && \
+    openssl version            | head -n 1
