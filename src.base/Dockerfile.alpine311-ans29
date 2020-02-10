@@ -1,4 +1,5 @@
-FROM alpine:3.11 as final
+ARG BASE_IMAGE=alpine:3.11
+FROM ${BASE_IMAGE} as final
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -118,12 +119,12 @@ RUN \
         && \
     echo "..."
 
-#FROM alpine/helm:3.0.2 as int-helm
-FROM dtzar/helm-kubectl:3.0.2 as int-helm-kubectl
+#FROM alpine/helm:3.0.2 as int--helm
+FROM dtzar/helm-kubectl:3.0.2 as int--helm-kubectl
 
 FROM final
-COPY --from=int-helm-kubectl /usr/local/bin/helm    /usr/bin/helm
-COPY --from=int-helm-kubectl /usr/local/bin/kubectl /usr/bin/kubectl
+COPY --from=int--helm-kubectl /usr/local/bin/helm    /usr/bin/helm
+COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/bin/kubectl
 
 RUN \
     echo "===> Adding Python runtime..."  && \
@@ -139,6 +140,8 @@ RUN \
     && \
     pip3 list && \
     echo "..."
+
+FROM ${BASE_IMAGE} as int--pip-stuff
 
 RUN \
     apk --update --no-cache add \
@@ -157,20 +160,21 @@ RUN \
         echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
         \
         echo "===> Installing (tools)..." && \
-        pip3 install --no-cache-dir \
+        python3 -m venv /venv/tools \
+        &&\
+        /venv/tools/bin/pip3 install --no-cache-dir \
             python-magic \
             s3cmd \
         && \
-        pip3 list && \
         \
         echo "===> Installing (ansible)..." && \
-        python3 -m venv /opt/ans \
+        python3 -m venv /venv/ans \
         &&\
-        /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             pip \
             ansible${PIP__ANSIBLE_VER} \
         && \
-        /opt/ans/bin/pip3 install --no-cache-dir --upgrade \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             ansible[azure]${PIP__ANSIBLE_VER} \
             \
             boto \
@@ -186,35 +190,44 @@ RUN \
         &&\
         \
         echo "===> Installing (azure-cli)..." && \
-        python3 -m venv /opt/az \
+        python3 -m venv /venv/az \
         &&\
-        /opt/az/bin/pip3 install --no-cache-dir --upgrade \
+        /venv/az/bin/pip3 install --no-cache-dir --upgrade \
             pip \
             azure-cli \
         &&\
         \
         echo "===> Installing (aws-cli)..." && \
-        python3 -m venv /opt/aws \
+        python3 -m venv /venv/aws \
         &&\
-        /opt/aws/bin/pip3 install --no-cache-dir --upgrade \
+        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
             pip \
             awscli \
-        && \
+        &&\
     \
-    echo "===> Cleaning up ..."  && \
-    apk del --update --no-cache \
-        build-dependencies \
-    && \
-    rm -rf \
-        "${HOME}/.cache" \
-        /var/cache/apk/* \
-        /tmp/*           \
-        /var/tmp/*       \
-    && \
-    \
-    echo "OK!"
+    echo "..."
+    #     && \
+    # \
+    # echo "===> Cleaning up ..."  && \
+    # apk del --update --no-cache \
+    #     build-dependencies \
+    # && \
+    # rm -rf \
+    #     "${HOME}/.cache" \
+    #     /var/cache/apk/* \
+    #     /tmp/*           \
+    #     /var/tmp/*       \
+    # && \
+    # \
+    # echo "OK!"
 
-ENV PATH="/opt/ans/bin:/opt/az/bin:/opt/aws/bin:$PATH"
+# #########################################################################
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+FROM final
+COPY --from=int--pip-stuff /venv   /venv
+
+ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
 
 # default command: display Ansible version
 CMD \
