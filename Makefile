@@ -8,9 +8,11 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TIMESTAMP=$(shell date -u +"%Y%m%d_%H%M%S%Z")
 
 BUILD_CACHE=
-#BUILD_CACHE=--no-cache --force-rm
+#BUILD_CACHE=--pull
+##BUILD_CACHE=--no-cache --force-rm
 
 all:
+default:
 
 include ./Makefile.rules.make
 include ./Makefile.base._.make

@@ -8,7 +8,7 @@ r--build-base-%: check-env-base
 			-t $(DH_ID_base):$* \
 			-t $(DH_ID_base):$*-${TAG_VERSION} \
 			. \
-		| tee /tmp/docker-ops-provision.base-$*.log \
+		| tee /tmp/docker-ops-base-$*.log \
 		;\
 
 # --------------------------------------------------------------------------
