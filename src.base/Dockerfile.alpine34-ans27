@@ -3,11 +3,13 @@ ARG BASE_IMAGE=alpine:3.4
 ARG PIP__ANSIBLE_VER="~=2.7.0"
 
 ARG HELM_VERSION=3.0.3
+ARG DOCKER_VERSION=19.03.5
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
+ARG DOCKER_VERSION
 
 # golang is not installed in the alpine version
 
@@ -90,6 +92,16 @@ RUN \
     echo "===> Adding docker-ssh-exec..."  && \
     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
          tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
+    echo "..."
+
+RUN \
+    echo "===> Adding Docker cli..."  && \
+    curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
+    tar xzvf docker-${DOCKER_VERSION}.tgz --strip 1 \
+            -C /usr/local/bin docker/docker \
+    && \
+    rm docker-${DOCKER_VERSION}.tgz \
     && \
     echo "..."
 
@@ -263,6 +275,7 @@ CMD \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
+    docker         --version   | head -n 1 && \
     helm    version --client   | head -n 1 && \
     kubectl version --client   | head -n 1 && \
     openssl version            | head -n 1

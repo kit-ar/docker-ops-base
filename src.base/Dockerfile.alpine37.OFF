@@ -10,7 +10,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 #
 
 ENV ANSIBLE_FROM_PIP=1
-ENV PIP__ANSIBLE_VER="~=2.5.0"
+ARG PIP__ANSIBLE_VER="~=2.5.0"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \

@@ -3,9 +3,11 @@ ARG BASE_IMAGE=alpine:3.8
 ARG PIP__ANSIBLE_VER="~=2.7.0"
 
 ARG HELM_VERSION=3.0.3
+ARG DOCKER_VERSION=19.03.5
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
+ARG DOCKER_VERSION
 
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
@@ -106,12 +108,15 @@ RUN \
     && \
     echo "..."
 
-# RUN \
-#     echo "===> Adding Docker cli..."  && \
-#     apk --update --no-cache add \
-#             docker-cli \
-#         && \
-#     echo "..."
+RUN \
+    echo "===> Adding Docker cli..."  && \
+    curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
+    tar xzvf docker-${DOCKER_VERSION}.tgz --strip 1 \
+            -C /usr/local/bin docker/docker \
+    && \
+    rm docker-${DOCKER_VERSION}.tgz \
+    && \
+    echo "..."
 
 RUN \
     echo "===> Adding Python runtime..."  && \
@@ -209,6 +214,9 @@ RUN \
 
 RUN \
         echo "===> Installing (azure-cli)..." && \
+        apk --update --no-cache add \
+            linux-headers \
+        &&\
         python3 -m venv /venv/az \
         &&\
         /venv/az/bin/pip3 install --no-cache-dir --upgrade \
@@ -262,6 +270,7 @@ CMD \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
+    docker         --version   | head -n 1 && \
     helm    version --client   | head -n 1 && \
     kubectl version --client   | head -n 1 && \
     openssl version            | head -n 1

@@ -39,8 +39,8 @@ r--push-deb-base-%:
 	docker push $(DH_ID_base):deb$*-${TAG_VERSION}
 
 r--push-ubuntu-base-%:
-	docker push $(DH_ID_base):ubuntu$*
-	docker push $(DH_ID_base):ubuntu$*-${TAG_VERSION}
+	docker push $(DH_ID_base):$*
+	docker push $(DH_ID_base):$*-${TAG_VERSION}
 
 # --------------------------------------------------------------------------
 r--push-alpine-base-%:
@@ -52,8 +52,8 @@ r--push-deb-base-%:
 	docker push $(DH_ID_base):deb$*-${TAG_VERSION}
 
 r--push-ubuntu-base-%:
-	docker push $(DH_ID_base):ubuntu$*
-	docker push $(DH_ID_base):ubuntu$*-${TAG_VERSION}
+	docker push $(DH_ID_base):$*
+	docker push $(DH_ID_base):$*-${TAG_VERSION}
 
 # --------------------------------------------------------------------------
 r--pull-alpine-base-%:
@@ -65,8 +65,8 @@ r--pull-deb-base-%:
 	docker pull $(DH_ID_base):deb$*-${TAG_VERSION}
 
 r--pull-ubuntu-base-%:
-	docker pull $(DH_ID_base):ubuntu$*
-	docker pull $(DH_ID_base):ubuntu$*-${TAG_VERSION}
+	docker pull $(DH_ID_base):$*
+	docker pull $(DH_ID_base):$*-${TAG_VERSION}
 
 
 # --------------------------------------------------------------------------
@@ -77,7 +77,7 @@ r--shell-deb-base-%:
 	docker run -it --rm $(DH_ID_base):deb$* bash
 
 r--shell-ubuntu-base-%:
-	docker run -it --rm $(DH_ID_base):ubuntu$* bash
+	docker run -it --rm $(DH_ID_base):$* bash
 
 r--shell-alpine-base%-tag:
 	docker run -it --rm $(DH_ID_base):alpine$*-${TAG_VERSION} bash
@@ -86,7 +86,7 @@ r--shell-deb-base-%-tag:
 	docker run -it --rm $(DH_ID_base):deb$*-${TAG_VERSION} bash
 
 r--shell-ubuntu-base-%-tag:
-	docker run -it --rm $(DH_ID_base):ubuntu$*-${TAG_VERSION} bash
+	docker run -it --rm $(DH_ID_base):$*-${TAG_VERSION} bash
 
 # --------------------------------------------------------------------------
 r--test-alpine-base-%:
@@ -103,5 +103,5 @@ r--test-deb-base-%:
 r--test-ubuntu-base-%:
 	@echo "#############################################"
 	@echo "$*"
-	docker run -it --rm $(DH_ID_base):ubuntu$*
+	docker run -it --rm $(DH_ID_base):$*
 

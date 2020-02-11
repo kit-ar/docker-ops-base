@@ -4,14 +4,20 @@ ARG PIP__ANSIBLE_VER="~=2.9.0"
 
 ARG HELM_VERSION=3.0.3
 ARG KUBECTL_VERSION=1.17.2
+ARG DOCKER_VERSION=19.03.5
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
 ARG APT__PYHTON3_VER
+ARG DOCKER_VERSION
 
-MAINTAINER HighSkillz <webdev@highskillz.com>
+LABEL maintainer="joao.costa@kit-ar.com"
 
 ENV DEBIAN_FRONTEND="noninteractive"
+
+## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
+## uncomment if really needed
+# ENV PYHELM_PIP3=pyhelm
 
 SHELL ["/bin/bash", "-c"]
 
@@ -84,7 +90,6 @@ RUN \
             htop \
             atop \
             sysstat \
-            dstat \
             iftop \
             ifstat \
             bmon \
@@ -101,6 +106,7 @@ RUN \
             postgresql-client \
             mysql-client \
             \
+            # not installing "dstat" because it installs python2
     && \
     \
     echo "===> Installing NodeJS 12.x..."  && \
@@ -111,7 +117,6 @@ RUN \
     npm i -g \
         yarn \
     && \
-    \
     echo "===> Adding Ruby 2.x..."  && \
     apt-get -y install  \
             ruby \
@@ -119,6 +124,14 @@ RUN \
     echo "===> Adding docker-ssh-exec..."  && \
     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
          tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
+    \
+    echo "===> Adding Docker cli..."  && \
+    curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
+    tar xzvf docker-${DOCKER_VERSION}.tgz --strip 1 \
+            -C /usr/local/bin docker/docker \
+    && \
+    rm docker-${DOCKER_VERSION}.tgz \
     && \
     \
     echo "===> Adding Python3 runtime..."  && \
@@ -249,15 +262,20 @@ RUN \
         echo "..."
 
 RUN \
+    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 &&\
+    chmod 700 get_helm.sh && \
     if [ "${HELM_VERSION}" == "" ]; then \
-        echo " ===> Installing HELM latest..." ; \
-        (curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash) &&\
+        echo " ===> Installing HELM latest...${HELM_VERSION}" &&\
+        ./get_helm.sh &&\
         echo "..."; \
     else \
         echo " ===> Installing HELM ${HELM_VERSION}..." ; \
-        (curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 -v "${HELM_VERSION} "| bash) &&\
+        ./get_helm.sh -v "v${HELM_VERSION}" &&\
         echo "..."; \
-    fi;
+    fi; \
+    helm version --client \
+    && \
+    echo "..."
 
 RUN \
     cd /usr/local/bin &&\
@@ -267,11 +285,13 @@ RUN \
         echo "..."; \
     else \
         echo " ===> Installing Kubectl ${KUBECTL_VERSION}..." ; \
-        (curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl | bash) &&\
+        (curl -LO https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl | bash) &&\
         echo "..."; \
     fi &&\
     chmod a+x kubectl \
     &&\
+    kubectl version --client \
+    && \
     echo "..."
 
 # #########################################################################
@@ -320,6 +340,7 @@ CMD \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
+    docker         --version   | head -n 1 && \
     helm    version --client   | head -n 1 && \
     kubectl version --client   | head -n 1 && \
     openssl version            | head -n 1

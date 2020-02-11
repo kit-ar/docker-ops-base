@@ -9,7 +9,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
 
-ENV PIP__ANSIBLE_VER="~=2.8.0"
+ARG PIP__ANSIBLE_VER="~=2.8.0"
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
 ## uncomment if really needed

@@ -10,7 +10,7 @@ FROM ubuntu:14.04 as final
 MAINTAINER HighSkillz <webdev@highskillz.com>
 
 ENV DEBIAN_FRONTEND="noninteractive"
-ENV PIP__ANSIBLE_VER="~=2.2.0"
+ARG PIP__ANSIBLE_VER="~=2.2.0"
 
 RUN \
     echo "===> Enabling Multiverse..."  && \
@@ -83,7 +83,6 @@ RUN \
             htop \
             atop \
             sysstat \
-            dstat \
             iftop \
             ifstat \
             bmon \
@@ -99,6 +98,7 @@ RUN \
             postgresql-client \
             mysql-client \
             \
+            # not installing "dstat" because it installs python2
     && \
     \
     echo "===> Configuring Python and PIP..."  && \

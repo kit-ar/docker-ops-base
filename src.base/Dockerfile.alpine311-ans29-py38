@@ -256,6 +256,7 @@ CMD \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \
     docker-compose --version   | head -n 1 && \
+    docker         --version   | head -n 1 && \
     helm    version --client   | head -n 1 && \
     kubectl version --client   | head -n 1 && \
     openssl version            | head -n 1

@@ -7,7 +7,7 @@ MAINTAINER HighSkillz <webdev@highskillz.com>
 # Also, we do not pretend pip will be available. Use pip3 instead.
 #
 ENV DEBIAN_FRONTEND="noninteractive"
-ENV PIP__ANSIBLE_VER="~=2.6.0"
+ARG PIP__ANSIBLE_VER="~=2.6.0"
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
 ## uncomment if really needed
@@ -85,7 +85,6 @@ RUN \
             htop \
             atop \
             sysstat \
-            dstat \
             iftop \
             ifstat \
             bmon \
@@ -102,6 +101,7 @@ RUN \
             postgresql-client \
             mysql-client \
             \
+            # not installing "dstat" because it installs python2
     && \
     \
     echo "===> Installing NodeJS 8.x..."  && \
