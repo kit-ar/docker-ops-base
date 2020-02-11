@@ -44,6 +44,11 @@ push-ubuntu: push-ubuntu-base
 push-deb:    push-deb-base
 
 # --------------------------------------------------------------------------
+clean-junk:
+	docker rm -v     `docker ps -aq -f status=exited`      || true
+	docker rmi       `docker images -q -f dangling=true`   || true
+	#docker volume rm `docker volume ls -qf dangling=true | grep -v "ansible_" | grep -v "^infra" |grep -v "state" |grep -v "persist" |grep -v "vol_"`  || true
+
 # clean-images:
 # 	docker rmi $(DH_ID_base):alpine  $(DH_ID):alpine   || true
 # 	docker rmi $(DH_ID_base):ubuntu  $(DH_ID):ubuntu   || true
