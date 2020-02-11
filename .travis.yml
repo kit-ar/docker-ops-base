@@ -11,13 +11,13 @@ env:
         DEBIAN_FRONTEND="noninteractive"
 
 install:
-  - sudo docker-compose --version
-  - sudo docker         --version
+  - docker-compose --version
+  - docker         --version
 
 script:
-  - sudo make alpine
-  - sudo make ubuntu
-  - sudo make deb
-  - sudo make test-alpine
-  - sudo make test-ubuntu
-  - sudo make test-deb
+  - make alpine
+  - make ubuntu
+  - make deb
+  - make test-alpine
+  - make test-ubuntu
+  - make test-deb
