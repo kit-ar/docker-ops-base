@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=3.8-alpine3.11
+ARG BASE_IMAGE=python:3.8-alpine3.11
 
 ARG PIP__ANSIBLE_VER="~=2.9.0"
 
