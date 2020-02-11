@@ -3,32 +3,32 @@
 # .ONESHELL:
 .SHELLFLAGS = -e
 # --------------------------------------------------------------------------
-build-base: build-deb-base
+build-base: build-base-deb
 
-build-deb-base: build-deb-base-10-ans29-py37
+build-base-deb: build-base-deb10-ans29-py37
 
-build-deb-base-10-ans29-py37:    r--build-deb-base-10-ans29-py37
-	docker tag ez123/ops-base:deb10-ans29-py37 ez123/ops-base:deb10
-
-# --------------------------------------------------------------------------
-pull-base: pull-deb-base
-
-pull-deb-base: check-env-base r--pull-deb-base-10-ans29-py37
+build-base-deb10-ans29-py37:    r--build-base-deb10-ans29-py37
+	docker tag ez123/ops-base:deb10-ans29-py37 ez123/ops-base:deb10-ans29
 
 # --------------------------------------------------------------------------
-push-base: push-deb-base
+pull-base: pull-base-deb
 
-push-deb-base: check-env-base r--push-deb-base-10-ans29-py37
+pull-base-deb: check-env-base r--pull-base-deb10-ans29-py37
 
 # --------------------------------------------------------------------------
-shell-deb:                        shell-deb-base-10-ans29-py37
+push-base: push-base-deb
 
-shell-deb-base-10-ans29-py37:     r--shell-deb-base-10-ans29-py37
+push-base-deb: check-env-base r--push-base-deb10-ans29-py37
+
+# --------------------------------------------------------------------------
+shell-deb:                        shell-base-deb10-ans29-py37
+
+shell-base-deb10-ans29-py37:     r--shell-base-deb10-ans29-py37
 
 # --------------------------------------------------------------------------
 # TEST_TAG=-181112c
 
 # --------------------------------------------------------------------------# --------------------------------------------------------------------------
-test-deb:                        test-deb-base
-test-deb-base:                   test-deb-base-10-ans29-py37
-test-deb-base-10-ans29-py37:     r--test-deb-base-10-ans29-py37$(TEST_TAG)
+test-deb:                        test-base-deb
+test-base-deb:                   test-base-deb10-ans29-py37
+test-base-deb10-ans29-py37:     r--test-base-deb10-ans29-py37$(TEST_TAG)

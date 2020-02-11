@@ -1,5 +1,5 @@
 # v2.4.1    2020-02-07     webmaster@highskillz.com
-TAG_VERSION=200210k
+TAG_VERSION=200211c
 
 # .ONESHELL:
 .SHELLFLAGS = -e
@@ -13,35 +13,35 @@ BUILD_CACHE=
 all:
 
 include ./Makefile.rules.make
-include ./Makefile.base.make
+include ./Makefile.base._.make
 
 # --------------------------------------------------------------------------
 build: build-alpine
 build: build-ubuntu
 build: build-deb
 
-#build-alpine: build-alpine-base build-alpine-provis
-build-alpine: build-alpine-base
-build-ubuntu: build-ubuntu-base
-build-deb:    build-deb-base
+#build-alpine: build-base-alpine build-alpine-provis
+build-alpine: build-base-alpine
+build-ubuntu: build-base-ubuntu
+build-deb:    build-base-deb
 
-build-latest: build-alpine-base-311-ans29
-build-latest: build-ubuntu-base-1804-ans29
-build-latest: build-deb-base-10-ans29-py37
+build-latest: build-base-alpine311-ans29
+build-latest: build-base-ubuntu1804-ans29
+build-latest: build-base-deb10-ans29-py37
 
 pull: pull-alpine
 pull: pull-ubuntu
 pull: pull-deb
-pull-alpine: pull-alpine-base
-pull-ubuntu: pull-ubuntu-base
-pull-deb:    pull-deb-base
+pull-alpine: pull-base-alpine
+pull-ubuntu: pull-base-ubuntu
+pull-deb:    pull-base-deb
 
 push: push-alpine
 push: push-ubuntu
 push: push-deb
-push-alpine: push-alpine-base
-push-ubuntu: push-ubuntu-base
-push-deb:    push-deb-base
+push-alpine: push-base-alpine
+push-ubuntu: push-base-ubuntu
+push-deb:    push-base-deb
 
 # --------------------------------------------------------------------------
 clean-junk:
