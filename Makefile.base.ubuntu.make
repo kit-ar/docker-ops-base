@@ -7,7 +7,7 @@
 build-base: build-ubuntu-base
 
 build-ubuntu-base: build-ubuntu-base-1804-ans29
-	docker tag ez123/ops-base:1804-ans29 ez123/ops-base:1804
+	docker tag ez123/ops-base:ubuntu1804-ans29 ez123/ops-base:ubuntu1804
 build-ubuntu-base: build-ubuntu-base-1804-ans27
 build-ubuntu-base: build-ubuntu-base-1604-ans27
 # build-ubuntu-base: build-ubuntu-base-1604-ans26
