@@ -188,11 +188,12 @@ RUN \
     apt-get update &&\
     apt-get -y install  \
 #            bash \
-#            libssl-dev libffi-dev \
             python3-dev${APT__PYHTON3_VER} \
             python3${APT__PYHTON3_VER} \
             python3-pip \
             python3-venv \
+            libssl-dev \
+            libffi-dev \
             curl \
     && \
     pip3 list &&\
