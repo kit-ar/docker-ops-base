@@ -1,5 +1,8 @@
 ---
-language: python
+# # language: python
+# language: generic
+language: minimal
+dist:     bionic
 
 sudo: required
 
