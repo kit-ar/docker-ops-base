@@ -2,8 +2,8 @@
 dist:     bionic
 
 # # language: python
-# language: generic
-language: minimal
+language: generic
+# language: minimal
 
 sudo: required
 
