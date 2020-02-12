@@ -4,6 +4,7 @@ TAG_VERSION=200211c
 DH_ID_base=ez123/ops-base
 
 # .ONESHELL:
+SHELL = bash
 .SHELLFLAGS = -e
 
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
