@@ -1,6 +1,8 @@
 # v2.4.3    2020-02-12     webmaster@highskillz.com
 TAG_VERSION=200211c
 
+DH_ID_base=ez123/ops-base
+
 # .ONESHELL:
 .SHELLFLAGS = -e
 
@@ -16,6 +18,10 @@ default:
 
 include ./Makefile.rules.make
 include ./Makefile.base._.make
+
+include ./Makefile.base.alpine.make
+include ./Makefile.base.ubuntu.make
+include ./Makefile.base.deb.make
 
 # --------------------------------------------------------------------------
 build: build-alpine

@@ -3,12 +3,15 @@
 
 # --------------------------------------------------------------------------
 r--build-base-%: check-env-base
+	@echo "####################################################"
+	@echo "Starting build:  $(DH_ID_base):$*-${TAG_VERSION}"
+	@echo ""
 	cd $(THIS_DIR)src.base ;\
 	docker build $(BUILD_CACHE) -f Dockerfile.$* \
 			-t $(DH_ID_base):$* \
 			-t $(DH_ID_base):$*-${TAG_VERSION} \
 			. \
-		| tee /tmp/docker-${DH_ID_base}-$*.log \
+		| tee /tmp/docker-ops-base-$*.log \
 		;\
 
 # --------------------------------------------------------------------------

@@ -12,12 +12,12 @@ build-base-ubuntu: build-base-ubuntu1604-ans27
 # dockerfiles: 3
 
 build-base-ubuntu1804-ans29:    r--build-base-ubuntu1804-ans29
-					docker tag ez123/ops-base:ubuntu1804-ans29    ez123/ops-base:ubuntu1804
-					docker tag ez123/ops-base:ubuntu1804-ans29    ez123/ops-base:ubuntu1804-${TAG_VERSION}
+					docker tag ${DH_ID_base}:ubuntu1804-ans29    ${DH_ID_base}:ubuntu1804
+					docker tag ${DH_ID_base}:ubuntu1804-ans29    ${DH_ID_base}:ubuntu1804-${TAG_VERSION}
 build-base-ubuntu1804-ans27:    r--build-base-ubuntu1804-ans27
 build-base-ubuntu1604-ans27:    r--build-base-ubuntu1604-ans27
-					docker tag ez123/ops-base:ubuntu1604-ans27    ez123/ops-base:ubuntu1604
-					docker tag ez123/ops-base:ubuntu1604-ans27    ez123/ops-base:ubuntu1604-${TAG_VERSION}
+					docker tag ${DH_ID_base}:ubuntu1604-ans27    ${DH_ID_base}:ubuntu1604
+					docker tag ${DH_ID_base}:ubuntu1604-ans27    ${DH_ID_base}:ubuntu1604-${TAG_VERSION}
 # images:      5
 
 # --------------------------------------------------------------------------

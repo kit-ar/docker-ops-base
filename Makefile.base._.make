@@ -3,8 +3,6 @@
 # .ONESHELL:
 .SHELLFLAGS = -e
 
-DH_ID_base=ez123/ops-base
-
 # --------------------------------------------------------------------------
 dc-list-ours: check-env-base
 	@docker images --filter=reference="${DH_ID_base}*:*" |grep -vE "\-2[0-9]+[a-zA-Z]?" |grep -v "none" |sort -V -r
@@ -30,7 +28,3 @@ check-env-base:
 	test -n "$(TAG_VERSION)"
 	test -n "$(TIMESTAMP)"
 
-# --------------------------------------------------------------------------
-include ./Makefile.base.alpine.make
-include ./Makefile.base.ubuntu.make
-include ./Makefile.base.deb.make
