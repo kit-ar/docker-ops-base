@@ -51,6 +51,14 @@ push-alpine: push-base-alpine
 push-ubuntu: push-base-ubuntu
 push-deb:    push-base-deb
 
+test: test-alpine
+test: test-ubuntu
+test: test-deb
+test-alpine: test-base-alpine
+test-ubuntu: test-base-ubuntu
+test-deb:    test-base-deb
+
+
 # --------------------------------------------------------------------------
 clean-junk:
 	docker rm -v     `docker ps -aq -f status=exited`      || true

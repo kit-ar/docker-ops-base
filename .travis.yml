@@ -15,9 +15,9 @@ install:
   - docker         --version
 
 script:
-  - make alpine
-  - make ubuntu
-  - make deb
+  - make build-alpine
+  - make build-ubuntu
+  - make build-deb
   - make test-alpine
   - make test-ubuntu
   - make test-deb
