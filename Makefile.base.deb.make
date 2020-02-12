@@ -9,8 +9,8 @@ build-base-deb: build-base-deb10-ans29-py37
 # dockerfiles: 1
 
 build-base-deb10-ans29-py37:    	r--build-base-deb10-ans29-py37
-						docker tag ez123/${DH_ID_base}:deb10-ans29-py37    ez123/${DH_ID_base}:deb10-ans29
-						docker tag ez123/${DH_ID_base}:deb10-ans29-py37    ez123/${DH_ID_base}:deb10-ans29-${TAG_VERSION}
+						docker tag ${DH_ID_base}:deb10-ans29-py37    ${DH_ID_base}:deb10-ans29
+						docker tag ${DH_ID_base}:deb10-ans29-py37    ${DH_ID_base}:deb10-ans29-${TAG_VERSION}
 # images:      2
 
 # --------------------------------------------------------------------------
