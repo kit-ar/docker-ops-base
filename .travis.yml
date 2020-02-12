@@ -1,8 +1,9 @@
 ---
+dist:     bionic
+
 # # language: python
 # language: generic
 language: minimal
-dist:     bionic
 
 sudo: required
 
@@ -16,6 +17,7 @@ env:
 install:
   - docker-compose --version
   - docker         --version
+  - which bash
 
 script:
   - make build-alpine
