@@ -23,20 +23,20 @@ build-base-ubuntu1604-ans27:    r--build-base-ubuntu1604-ans27
 # --------------------------------------------------------------------------
 pull-base: pull-base-ubuntu
 
-pull-base-ubuntu: check-env-base r--pull-base-ubuntu1804-ans29
-pull-base-ubuntu: check-env-base r--pull-base-ubuntu1804
-pull-base-ubuntu: check-env-base r--pull-base-ubuntu1804-ans27
-pull-base-ubuntu: check-env-base r--pull-base-ubuntu1604-ans27
-pull-base-ubuntu: check-env-base r--pull-base-ubuntu1604
+pull-base-ubuntu: r--pull-base-ubuntu1804-ans29
+pull-base-ubuntu: r--pull-base-ubuntu1804
+pull-base-ubuntu: r--pull-base-ubuntu1804-ans27
+pull-base-ubuntu: r--pull-base-ubuntu1604-ans27
+pull-base-ubuntu: r--pull-base-ubuntu1604
 
 # --------------------------------------------------------------------------
 push-base: push-base-ubuntu
 
-push-base-ubuntu: check-env-base r--push-base-ubuntu1804-ans29
-push-base-ubuntu: check-env-base r--push-base-ubuntu1804
-push-base-ubuntu: check-env-base r--push-base-ubuntu1804-ans27
-push-base-ubuntu: check-env-base r--push-base-ubuntu1604-ans27
-push-base-ubuntu: check-env-base r--push-base-ubuntu1604
+push-base-ubuntu: r--push-base-ubuntu1804-ans29
+push-base-ubuntu: r--push-base-ubuntu1804
+push-base-ubuntu: r--push-base-ubuntu1804-ans27
+push-base-ubuntu: r--push-base-ubuntu1604-ans27
+push-base-ubuntu: r--push-base-ubuntu1604
 
 # --------------------------------------------------------------------------
 shell-ubuntu:                     shell-base-ubuntu

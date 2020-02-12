@@ -6,7 +6,7 @@
 DH_ID_base=ez123/ops-base
 
 # --------------------------------------------------------------------------
-dc-list-ours:
+dc-list-ours: check-env-base
 	@docker images --filter=reference="${DH_ID_base}*:*" |grep -vE "\-2[0-9]+[a-zA-Z]?" |grep -v "none" |sort -V -r
 	@docker images --filter=reference="${DH_ID_base}*:*" |grep -vE "\-2[0-9]+[a-zA-Z]?" |grep -v "none" |wc -l
 
@@ -18,7 +18,7 @@ dc-list-ours:
 	@docker images --filter=reference="${DH_ID_base}*:*"                |wc -l
 
 # --------------------------------------------------------------------------
-dc-clean-ours-only:
+dc-clean-ours-only: check-env-base
 	docker images --filter=reference="${DH_ID_base}*:*"
 	docker rm  $$(docker ps -a -q)                                           ||true
 	docker rmi -f $$(docker images -q -f dangling=true)                      ||true
@@ -26,8 +26,9 @@ dc-clean-ours-only:
 
 # --------------------------------------------------------------------------
 check-env-base:
-	test -n "$(TAG_VERSION)"   # TAG_VERSION.base
-	test -n "$(TIMESTAMP)"     # TIMESTAMP.base
+	test -n "$(DH_ID_base)"
+	test -n "$(TAG_VERSION)"
+	test -n "$(TIMESTAMP)"
 
 # --------------------------------------------------------------------------
 include ./Makefile.base.alpine.make

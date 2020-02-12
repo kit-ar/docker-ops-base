@@ -31,28 +31,28 @@ build-base-alpine34-ans27:          r--build-base-alpine34-ans27
 # --------------------------------------------------------------------------
 pull-base: pull-base-alpine
 
-pull-base-alpine: check-env-base r--pull-base-alpineedge
-pull-base-alpine: check-env-base r--pull-base-alpine311-ans29-py38
-pull-base-alpine: check-env-base r--pull-base-alpine311-ans29
-pull-base-alpine: check-env-base r--pull-base-alpine311
-pull-base-alpine: check-env-base r--pull-base-alpine311-ans27
-pull-base-alpine: check-env-base r--pull-base-alpine38-ans27
-pull-base-alpine: check-env-base r--pull-base-alpine38
-pull-base-alpine: check-env-base r--pull-base-alpine34-ans27
-pull-base-alpine: check-env-base r--pull-base-alpine34
+pull-base-alpine: r--pull-base-alpineedge
+pull-base-alpine: r--pull-base-alpine311-ans29-py38
+pull-base-alpine: r--pull-base-alpine311-ans29
+pull-base-alpine: r--pull-base-alpine311
+pull-base-alpine: r--pull-base-alpine311-ans27
+pull-base-alpine: r--pull-base-alpine38-ans27
+pull-base-alpine: r--pull-base-alpine38
+pull-base-alpine: r--pull-base-alpine34-ans27
+pull-base-alpine: r--pull-base-alpine34
 
 # --------------------------------------------------------------------------
 push-base: push-base-alpine
 
-push-base-alpine: check-env-base r--push-base-alpineedge
-push-base-alpine: check-env-base r--push-base-alpine311-ans29-py38
-push-base-alpine: check-env-base r--push-base-alpine311-ans29
-push-base-alpine: check-env-base r--push-base-alpine311
-push-base-alpine: check-env-base r--push-base-alpine311-ans27
-push-base-alpine: check-env-base r--push-base-alpine38-ans27
-push-base-alpine: check-env-base r--push-base-alpine38
-push-base-alpine: check-env-base r--push-base-alpine34-ans27
-push-base-alpine: check-env-base r--push-base-alpine34
+push-base-alpine: r--push-base-alpineedge
+push-base-alpine: r--push-base-alpine311-ans29-py38
+push-base-alpine: r--push-base-alpine311-ans29
+push-base-alpine: r--push-base-alpine311
+push-base-alpine: r--push-base-alpine311-ans27
+push-base-alpine: r--push-base-alpine38-ans27
+push-base-alpine: r--push-base-alpine38
+push-base-alpine: r--push-base-alpine34-ans27
+push-base-alpine: r--push-base-alpine34
 
 # --------------------------------------------------------------------------
 shell-base-alpine: shell-base-alpineedge

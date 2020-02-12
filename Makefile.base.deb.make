@@ -16,14 +16,14 @@ build-base-deb10-ans29-py37:    	r--build-base-deb10-ans29-py37
 # --------------------------------------------------------------------------
 pull-base: pull-base-deb
 
-pull-base-deb: check-env-base r--pull-base-deb10-ans29-py37
-pull-base-deb: check-env-base r--pull-base-deb10-ans29
+pull-base-deb: r--pull-base-deb10-ans29-py37
+pull-base-deb: r--pull-base-deb10-ans29
 
 # --------------------------------------------------------------------------
 push-base: push-base-deb
 
-push-base-deb: check-env-base r--push-base-deb10-ans29-py37
-push-base-deb: check-env-base r--push-base-deb10-ans29
+push-base-deb: r--push-base-deb10-ans29-py37
+push-base-deb: r--push-base-deb10-ans29
 
 # --------------------------------------------------------------------------
 shell-deb:                        shell-base-deb10-ans29-py37
