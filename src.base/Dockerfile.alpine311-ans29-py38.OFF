@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=python:3.8-alpine3.11
+ARG BASE_IMAGE=ez123/ops-base:alpine311
 
 ARG PIP__ANSIBLE_VER="~=2.9.0"
 
@@ -172,9 +172,10 @@ RUN \
         python3 -m venv /venv/tools \
         &&\
         /venv/tools/bin/pip3 install --no-cache-dir \
+            docker-compose \
             python-magic \
             s3cmd \
-        && \
+       && \
         echo "..."
 
 RUN \
@@ -194,7 +195,6 @@ RUN \
             ${PYHELM_PIP3} \
             \
             docker \
-            docker-compose \
             \
             ansible-lint \
             \
@@ -218,6 +218,7 @@ RUN \
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
             pip \
             awscli \
+            saw \
     &&\
     \
     echo "..."
