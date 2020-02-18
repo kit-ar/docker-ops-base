@@ -69,7 +69,7 @@ RUN \
         &&\
         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             pip \
-            ansible${PIP__ANSIBLE_VER} \
+            # ansible${PIP__ANSIBLE_VER} \
         && \
         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             ansible[azure]${PIP__ANSIBLE_VER} \

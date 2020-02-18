@@ -72,9 +72,11 @@ RUN \
         &&\
         /venv/ans/bin/pip install --no-cache-dir --upgrade pip wheel 'setuptools<45.0.0' &&\
         /venv/ans/bin/pip install --no-cache-dir --upgrade \
-            paramiko \
-            ansible${PIP__ANSIBLE_VER} \
-        && \
+        &&\
+        # /venv/ans/bin/pip install --no-cache-dir --upgrade \
+        #     paramiko \
+        #     # ansible${PIP__ANSIBLE_VER} \
+        # && \
         /venv/ans/bin/pip install --no-cache-dir --upgrade \
             ansible[azure]${PIP__ANSIBLE_VER} \
             \
