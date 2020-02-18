@@ -8,8 +8,6 @@ FROM ${BASE_IMAGE} as final
 LABEL maintainer="webmaster@kit-ar.com"
 ARG DOCKER_VERSION
 
-# golang is not installed in the alpine version
-
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apk --update --no-cache add \
