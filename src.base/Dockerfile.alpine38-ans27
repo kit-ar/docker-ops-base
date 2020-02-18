@@ -93,7 +93,7 @@ RUN \
     \
     echo "..."
 
-ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+ENV PATH="/venv/ans/bin:$PATH"
 # #########################################################################
 # default command: display Ansible version
 CMD \
