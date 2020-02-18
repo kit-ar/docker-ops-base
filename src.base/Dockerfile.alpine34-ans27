@@ -1,17 +1,11 @@
-ARG BASE_IMAGE=alpine:3.4
+ARG BASE_IMAGE=ez123/ops-base:alpine34
 
 ARG PIP__ANSIBLE_VER="~=2.7.0"
-
-ARG HELM_VERSION=3.0.3
-ARG DOCKER_VERSION=19.03.5
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
 
-MAINTAINER HighSkillz <webdev@highskillz.com>
-ARG DOCKER_VERSION
-
-# golang is not installed in the alpine version
+LABEL maintainer="webmaster@kit-ar.com"
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -21,121 +15,16 @@ RUN \
     && \
     echo "..."
 
-RUN \
-    echo "===> Adding usefull packages for devops shell-works..."  && \
-    apk --update --no-cache add \
-            coreutils \
-            openssh-client \
-            rsync \
-            tar \
-            make \
-            \
-            tini \
-            \
-            file \
-            bash \
-            # bash-completion \
-            less \
-            nano \
-            \
-            curl \
-            wget \
-            \
-            zip \
-            xz \
-            unrar \
-            \
-            git \
-            \
-            mc \
-            mosh \
-            screen \
-            \
-            lsscsi \
-            \
-            htop \
-            atop \
-            sysstat \
-            iftop \
-            lsof \
-            util-linux \
-            mtr \
-            groff \
-        && \
-    \
-    sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
-    && \
-    echo "..."
-SHELL ["/bin/bash", "-c"]
-
-RUN \
-    echo "===> DB clients..."  && \
-    apk --update --no-cache add \
-            postgresql-client \
-            mysql-client \
-        && \
-    echo "..."
-
-RUN \
-    echo "===> Installing NodeJS 6.x..."  && \
-    apk --update --no-cache add \
-            nodejs \
-    && \
-    \
-    echo "===> Adding Ruby 2.x..."  && \
-    apk --update --no-cache add \
-            ruby \
-        && \
-    echo "..."
-
-RUN \
-    echo "===> Adding docker-ssh-exec..."  && \
-    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
-         tar -xz --strip-components=1 -C /usr/local/bin \
-    && \
-    echo "..."
-
-RUN \
-    echo "===> Adding Docker cli..."  && \
-    curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
-    tar xzvf docker-${DOCKER_VERSION}.tgz --strip 1 \
-            -C /usr/local/bin docker/docker \
-    && \
-    rm docker-${DOCKER_VERSION}.tgz \
-    && \
-    echo "..."
-
-RUN \
-    echo "===> Adding Python runtime..."  && \
-    apk --update --no-cache add \
-            python py-pip \
-            python3 \
-        && \
-    \
-    echo "===> Configuring Python and PIP..."  && \
-    pip3 install --upgrade pip wheel setuptools    && \
-    pip2 install --upgrade pip wheel 'setuptools<45.0.0' && \
-    rm $(which pip) && \
-    ln -s $(which pip2) /usr/local/bin/pip && \
-    \
-    echo Making sure pip is set to python2 && \
-    pip --version | grep "python 2\."  && \
-    pip list && \
-    pip3 list && \
-    \
-    echo "===> Cleaning up ..."  && \
-    rm -rf \
-        "${HOME}/.cache" \
-        /var/cache/apk/* \
-        /tmp/*           \
-        /var/tmp/*       \
-    && \
-    echo "..."
+# RUN \
+#     echo "===> Adding Ruby 2.x..."  && \
+#     apk --update --no-cache add \
+#             ruby \
+#         && \
+#     echo "..."
 
 # #########################################################################
 FROM ${BASE_IMAGE} as int--misc-tools
 ARG PIP__ANSIBLE_VER
-ARG KUBECTL_VERSION
 
 # From alpine 3.7 onwards, since ansible2+4+ already supports python3,
 # we no longer install/support python2 by default.
@@ -145,9 +34,7 @@ ARG KUBECTL_VERSION
 ## uncomment if really needed
 # ENV PYHELM_PIP3=pyhelm
 
-
 RUN \
-    echo "===> Adding Python runtime..."  && \
     apk --update --no-cache add \
             python py-pip \
         && \
@@ -180,17 +67,6 @@ RUN \
     echo "..."
 
 RUN \
-    echo "===> Installing (tools)..." && \
-        virtualenv /venv/tools \
-        &&\
-        /venv/tools/bin/pip install --no-cache-dir --upgrade pip wheel 'setuptools<45.0.0' &&\
-        /venv/tools/bin/pip install --no-cache-dir \
-            python-magic \
-            s3cmd \
-        && \
-        echo "..."
-
-RUN \
         echo "===> Installing (ansible)..." && \
         virtualenv /venv/ans \
         &&\
@@ -208,52 +84,19 @@ RUN \
             ${PYHELM_PIP3} \
             \
             docker \
-            docker-compose \
             \
             ansible-lint \
             \
         &&\
         echo "..."
 
-RUN \
-        echo "===> Installing (azure-cli)..." && \
-        apk --update --no-cache add \
-            linux-headers \
-        &&\
-        virtualenv /venv/az \
-        &&\
-        /venv/az/bin/pip install --no-cache-dir --upgrade pip wheel 'setuptools<45.0.0' &&\
-        /venv/az/bin/pip install --no-cache-dir --upgrade \
-            azure-cli \
-        &&\
-        echo "..."
-
-RUN \
-        echo "===> Installing (aws-cli)..." && \
-        virtualenv /venv/aws \
-        &&\
-        /venv/aws/bin/pip install --no-cache-dir --upgrade pip wheel 'setuptools<45.0.0' &&\
-        /venv/aws/bin/pip install --no-cache-dir --upgrade \
-            awscli \
-    &&\
-    \
-    echo "..."
-
-# #########################################################################
-#FROM alpine/helm:${HELM_VERSION} as int--helm
-FROM dtzar/helm-kubectl:${HELM_VERSION} as int--helm-kubectl
-
 # #########################################################################
 FROM final
 
 # =========================================================================
-COPY --from=int--helm-kubectl /usr/local/bin/helm    /usr/local/bin/helm
-COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/local/bin/kubectl
-
-# =========================================================================
 # we rely on the intermediate image and the final image being the same;
 # the source and target location must be the same as venv relies on hardwired python path
-COPY --from=int--misc-tools /venv   /venv
+COPY --from=int--misc-tools /venv/ans   /venv/ans
 
 RUN \
     du -hd1 /venv &&\

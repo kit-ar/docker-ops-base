@@ -22,42 +22,42 @@ include ./Makefile.base._.make
 
 include ./Makefile.base.alpine.make
 include ./Makefile.base.ubuntu.make
-include ./Makefile.base.deb.make
+# include ./Makefile.base.deb.make
 
 # --------------------------------------------------------------------------
 build: build-alpine
 build: build-ubuntu
-build: build-deb
+# build: build-deb
 
 #build-alpine: build-base-alpine build-alpine-provis
 build-alpine: build-base-alpine
 build-ubuntu: build-base-ubuntu
-build-deb:    build-base-deb
+# # build-deb:    build-base-deb
 
 build-latest: build-base-alpine311-ans29
 build-latest: build-base-ubuntu1804-ans29
-build-latest: build-base-deb10-ans29-py37
+# build-latest: build-base-deb10-ans29-py37
 
 pull: pull-alpine
 pull: pull-ubuntu
-pull: pull-deb
+# pull: pull-deb
 pull-alpine: pull-base-alpine
 pull-ubuntu: pull-base-ubuntu
-pull-deb:    pull-base-deb
+# # pull-deb:    pull-base-deb
 
 push: push-alpine
 push: push-ubuntu
-push: push-deb
+# push: push-deb
 push-alpine: push-base-alpine
 push-ubuntu: push-base-ubuntu
-push-deb:    push-base-deb
+# # push-deb:    push-base-deb
 
 test: test-alpine
 test: test-ubuntu
-test: test-deb
+# test: test-deb
 test-alpine: test-base-alpine
 test-ubuntu: test-base-ubuntu
-test-deb:    test-base-deb
+# # test-deb:    test-base-deb
 
 
 # --------------------------------------------------------------------------
