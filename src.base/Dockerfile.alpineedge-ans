@@ -1,5 +1,7 @@
 ARG BASE_IMAGE=alpine:edge
 
+ARG PIP__ANSIBLE_VER
+
 ARG HELM_VERSION=3.0.3
 
 # #########################################################################
@@ -14,7 +16,7 @@ RUN \
     apk --update --no-cache add \
             ca-certificates \
             openssl \
-    && \
+        && \
     echo "..."
 
 RUN \
@@ -91,6 +93,13 @@ RUN \
     echo "..."
 
 RUN \
+    echo "===> Adding Ruby 2.6.5+..."  && \
+    apk --update --no-cache add \
+            ruby \
+        && \
+    echo "..."
+
+RUN \
     echo "===> Adding docker-ssh-exec..."  && \
     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
          tar -xz --strip-components=1 -C /usr/local/bin \
@@ -129,7 +138,21 @@ RUN \
 
 # #########################################################################
 FROM ${BASE_IMAGE} as int--misc-tools
+ARG PIP__ANSIBLE_VER
 ARG KUBECTL_VERSION
+
+# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
+# we no longer install/support python2 by default.
+# Also, we do not pretend pip will be available. Use pip3 instead.
+
+## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
+## uncomment if really needed
+# ENV PYHELM_PIP3=pyhelm
+# ENV PYHELM_APK_GRPCIO=py3-grpcio@testing
+
+RUN \
+    [ "${PYHELM_APK_GRPCIO}" == "" ] || echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+
 
 RUN \
     apk --update --no-cache add \
@@ -138,9 +161,20 @@ RUN \
             build-base  \
             openssl-dev \
             libffi-dev \
+            ${PYHELM_APK_GRPCIO} \
     && \
     pip3 list &&\
     \
+    echo "..."
+
+RUN \
+    echo "===> Installing Ansible (via PIP)..." \
+    echo "===> Installing ansible and ansible[azure] in separate steps..." \
+    echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
+    echo "===> Installing azure-cli and ansible[azure] in separate virtuaenv to prevent version conflicts..." \
+    echo "===> as of 2020-02-09, we could not find any other option..." \
+    echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
+    && \
     echo "..."
 
 RUN \
@@ -148,10 +182,33 @@ RUN \
         python3 -m venv /venv/tools \
         &&\
         /venv/tools/bin/pip3 install --no-cache-dir \
-            docker-compose \
             python-magic \
             s3cmd \
         && \
+        echo "..."
+
+RUN \
+        echo "===> Installing (ansible)..." && \
+        python3 -m venv /venv/ans \
+        &&\
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            ansible${PIP__ANSIBLE_VER} \
+        && \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+            ansible[azure]${PIP__ANSIBLE_VER} \
+            \
+            boto \
+            \
+            openshift \
+            ${PYHELM_PIP3} \
+            \
+            docker \
+            docker-compose \
+            \
+            ansible-lint \
+            \
+        &&\
         echo "..."
 
 RUN \
@@ -171,7 +228,6 @@ RUN \
         /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
             pip \
             awscli \
-            saw \
     &&\
     \
     echo "..."
@@ -197,14 +253,15 @@ RUN \
     \
     echo "..."
 
-ENV PATH="/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
-
+ENV PATH="/venv/ans/bin:/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
 # #########################################################################
-# default command: display installed versions
+# default command: display Ansible version
 CMD \
+    ansible-playbook --version | head -n 1 && \
     python3 --version          | head -n 1 && \
     pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
+    ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \

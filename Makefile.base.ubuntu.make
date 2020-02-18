@@ -8,17 +8,17 @@ build-base: build-base-ubuntu
 
 build-base-ubuntu: build-base-ubuntu1804-ans29
 build-base-ubuntu: build-base-ubuntu1804-ans27
+build-base-ubuntu: build-base-ubuntu1804
 build-base-ubuntu: build-base-ubuntu1604-ans27
-# dockerfiles: 3
+build-base-ubuntu: build-base-ubuntu1604
+# dockerfiles: 5
 
 build-base-ubuntu1804-ans29:    r--build-base-ubuntu1804-ans29
-					docker tag ${DH_ID_base}:ubuntu1804-ans29    ${DH_ID_base}:ubuntu1804
-					docker tag ${DH_ID_base}:ubuntu1804-ans29    ${DH_ID_base}:ubuntu1804-${TAG_VERSION}
 build-base-ubuntu1804-ans27:    r--build-base-ubuntu1804-ans27
+build-base-ubuntu1804:          r--build-base-ubuntu1804
 build-base-ubuntu1604-ans27:    r--build-base-ubuntu1604-ans27
-					docker tag ${DH_ID_base}:ubuntu1604-ans27    ${DH_ID_base}:ubuntu1604
-					docker tag ${DH_ID_base}:ubuntu1604-ans27    ${DH_ID_base}:ubuntu1604-${TAG_VERSION}
-# images:      5
+build-base-ubuntu1604:          r--build-base-ubuntu1604
+# images:      10
 
 # --------------------------------------------------------------------------
 pull-base: pull-base-ubuntu

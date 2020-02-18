@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=alpine:edge
+ARG BASE_IMAGE=alpine:3.8
 
 ARG HELM_VERSION=3.0.3
 
@@ -99,9 +99,12 @@ RUN \
 
 RUN \
     echo "===> Adding Docker cli..."  && \
-    apk --update --no-cache add \
-            docker-cli \
-        && \
+    curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
+    tar xzvf docker-${DOCKER_VERSION}.tgz --strip 1 \
+            -C /usr/local/bin docker/docker \
+    && \
+    rm docker-${DOCKER_VERSION}.tgz \
+    && \
     echo "..."
 
 RUN \
@@ -156,6 +159,9 @@ RUN \
 
 RUN \
         echo "===> Installing (azure-cli)..." && \
+        apk --update --no-cache add \
+            linux-headers \
+        &&\
         python3 -m venv /venv/az \
         &&\
         /venv/az/bin/pip3 install --no-cache-dir --upgrade \

@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=alpine:edge
+ARG BASE_IMAGE=alpine:3.4
 
 ARG HELM_VERSION=3.0.3
 
@@ -6,6 +6,7 @@ ARG HELM_VERSION=3.0.3
 FROM ${BASE_IMAGE} as final
 
 LABEL maintainer="webmaster@kit-ar.com"
+ARG DOCKER_VERSION
 
 # golang is not installed in the alpine version
 
@@ -30,15 +31,13 @@ RUN \
             \
             file \
             bash \
-            bash-completion \
+            # bash-completion \
             less \
             nano \
-            jq \
             \
             curl \
             wget \
             \
-            virt-what \
             zip \
             xz \
             unrar \
@@ -47,21 +46,14 @@ RUN \
             \
             mc \
             mosh \
-            ncdu \
             screen \
-            dos2unix \
             \
             lsscsi \
             \
-            iotop \
             htop \
             atop \
             sysstat \
             iftop \
-            bmon \
-            \
-            iptraf-ng \
-            nethogs \
             lsof \
             util-linux \
             mtr \
@@ -82,11 +74,14 @@ RUN \
     echo "..."
 
 RUN \
-    echo "===> Installing NodeJS 12.14+..."  && \
+    echo "===> Installing NodeJS 6.x..."  && \
     apk --update --no-cache add \
             nodejs \
-            npm \
-            yarn \
+    && \
+    \
+    echo "===> Adding Ruby 2.x..."  && \
+    apk --update --no-cache add \
+            ruby \
         && \
     echo "..."
 
@@ -99,23 +94,30 @@ RUN \
 
 RUN \
     echo "===> Adding Docker cli..."  && \
-    apk --update --no-cache add \
-            docker-cli \
-        && \
+    curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
+    tar xzvf docker-${DOCKER_VERSION}.tgz --strip 1 \
+            -C /usr/local/bin docker/docker \
+    && \
+    rm docker-${DOCKER_VERSION}.tgz \
+    && \
     echo "..."
 
 RUN \
     echo "===> Adding Python runtime..."  && \
     apk --update --no-cache add \
+            python py-pip \
             python3 \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
-    pip3 list &&\
-    pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
-        pip setuptools wheel \
-        pip-tools \
-    && \
+    pip3 install --upgrade pip wheel setuptools    && \
+    pip2 install --upgrade pip wheel 'setuptools<45.0.0' && \
+    rm $(which pip) && \
+    ln -s $(which pip2) /usr/local/bin/pip && \
+    \
+    echo Making sure pip is set to python2 && \
+    pip --version | grep "python 2\."  && \
+    pip list && \
     pip3 list && \
     \
     echo "===> Cleaning up ..."  && \
@@ -132,22 +134,34 @@ FROM ${BASE_IMAGE} as int--misc-tools
 ARG KUBECTL_VERSION
 
 RUN \
+    echo "===> Adding Python runtime..."  && \
+    apk --update --no-cache add \
+            python py-pip \
+        && \
+    \
+    echo "===> Configuring Python and PIP..."  && \
+    pip2 install --upgrade pip wheel 'setuptools<45.0.0' && \
+    pip list && \
+    \
     apk --update --no-cache add \
         --virtual build-dependencies \
-            python3-dev \
+            py-virtualenv \
+            python-dev \
             build-base  \
             openssl-dev \
             libffi-dev \
+            libc-dev \
     && \
-    pip3 list &&\
+    pip list &&\
     \
     echo "..."
 
 RUN \
     echo "===> Installing (tools)..." && \
-        python3 -m venv /venv/tools \
+        virtualenv /venv/tools \
         &&\
-        /venv/tools/bin/pip3 install --no-cache-dir \
+        /venv/tools/bin/pip install --no-cache-dir --upgrade pip wheel 'setuptools<45.0.0' &&\
+        /venv/tools/bin/pip install --no-cache-dir \
             docker-compose \
             python-magic \
             s3cmd \
@@ -156,20 +170,23 @@ RUN \
 
 RUN \
         echo "===> Installing (azure-cli)..." && \
-        python3 -m venv /venv/az \
+        apk --update --no-cache add \
+            linux-headers \
         &&\
-        /venv/az/bin/pip3 install --no-cache-dir --upgrade \
-            pip \
+        virtualenv /venv/az \
+        &&\
+        /venv/az/bin/pip install --no-cache-dir --upgrade pip wheel 'setuptools<45.0.0' &&\
+        /venv/az/bin/pip install --no-cache-dir --upgrade \
             azure-cli \
         &&\
         echo "..."
 
 RUN \
         echo "===> Installing (aws-cli)..." && \
-        python3 -m venv /venv/aws \
+        virtualenv /venv/aws \
         &&\
-        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-            pip \
+        /venv/aws/bin/pip install --no-cache-dir --upgrade pip wheel 'setuptools<45.0.0' &&\
+        /venv/aws/bin/pip install --no-cache-dir --upgrade \
             awscli \
             saw \
     &&\
@@ -202,7 +219,9 @@ ENV PATH="/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
 # #########################################################################
 # default command: display installed versions
 CMD \
+    python  --version          | head -n 1 && \
     python3 --version          | head -n 1 && \
+    pip  --version             | head -n 1 && \
     pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
     git  --version             | head -n 1 && \

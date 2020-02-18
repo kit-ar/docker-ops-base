@@ -1,0 +1,295 @@
+ARG BASE_IMAGE=ubuntu:18.04
+
+ARG HELM_VERSION=3.0.3
+ARG KUBECTL_VERSION=1.17.2
+ARG DOCKER_VERSION=19.03.5
+
+# #########################################################################
+FROM ${BASE_IMAGE} as final
+ARG APT__PYHTON3_VER
+ARG DOCKER_VERSION
+
+LABEL maintainer="joao.costa@kit-ar.com"
+
+ENV DEBIAN_FRONTEND="noninteractive"
+
+## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
+## uncomment if really needed
+# ENV PYHELM_PIP3=pyhelm
+
+SHELL ["/bin/bash", "-c"]
+
+RUN \
+    echo "===> Enabling Multiverse..."  && \
+    sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
+    \
+    echo "===> Speeding up apt and dpkg..."  && \
+    echo "force-unsafe-io"                 > /etc/dpkg/dpkg.cfg.d/02apt-speedup         && \
+    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache               && \
+    echo "APT::Install-Recommends \"0\";"  > /etc/apt/apt.conf.d/no-install-recommend   && \
+    echo "APT::Install-Suggests \"0\";"  > /etc/apt/apt.conf.d/no-install-recommend     && \
+    \
+    echo "===> Initial packages update"  && \
+    apt-get    update  && \
+    apt-get -y install \
+          apt-transport-https \
+          lsb-release \
+          software-properties-common \
+    && \
+    \
+    echo "===> Adding PPAs..."  && \
+    apt-get    update  && \
+    \
+    echo "===> Updating TLS certificates..."         && \
+    apt-get -y install \
+            ca-certificates \
+            openssl \
+            ssl-cert \
+    && \
+    #\
+    #echo "===> Upgrading distribution..."  && \
+    #apt-get -y dist-upgrade && \
+    #\
+    echo "===> Adding usefull packages for devops shell-works..."  && \
+    apt-get -y install  \
+            openssh-client \
+            inetutils-ping \
+            rsync \
+            make \
+            \
+            bash \
+            bash-completion \
+            less \
+            nano \
+            jq \
+            \
+            curl \
+            wget \
+            \
+            virt-what \
+            cpu-checker \
+            zip \
+            xz-utils \
+            \
+            git \
+            \
+            mc \
+            mosh \
+            ncdu \
+            screen \
+            dos2unix \
+            deborphan \
+            \
+            lsscsi \
+            \
+            iotop \
+            htop \
+            atop \
+            sysstat \
+            iftop \
+            ifstat \
+            bmon \
+            \
+            tcptrack \
+            iptraf \
+            nethogs \
+            lsof \
+            procinfo \
+            util-linux \
+            mtr \
+            groff \
+            \
+            postgresql-client \
+            mysql-client \
+            \
+            # not installing "dstat" because it installs python2
+    && \
+    \
+    echo "===> Installing NodeJS 12.x..."  && \
+    curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
+    apt-get -y install  \
+          nodejs \
+    && \
+    npm i -g \
+        yarn \
+    && \
+    echo "===> Adding docker-ssh-exec..."  && \
+    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+         tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
+    \
+    echo "===> Adding Docker cli..."  && \
+    curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
+    tar xzvf docker-${DOCKER_VERSION}.tgz --strip 1 \
+            -C /usr/local/bin docker/docker \
+    && \
+    rm docker-${DOCKER_VERSION}.tgz \
+    && \
+    \
+    echo "===> Adding Python3 runtime..."  && \
+    apt-get -y install  \
+            python3${APT__PYHTON3_VER} \
+            python3-pip \
+            python3-venv \
+    && \
+    \
+    echo "===> Configuring Python and PIP..."  && \
+    echo "===> PIP3 has an issue when upgraded to v18+..."  && \
+    pip3 list &&\
+    pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
+        pip${PIP__PIP3_VER} setuptools wheel \
+        pip-tools \
+    && \
+    rm -rf /usr/bin/pip3 && \
+    ln -s /usr/local/bin/pip3 /usr/bin/pip3 &&\
+    \
+    pip3 list &&\
+    \
+    echo "===> Cleaning up ..."  && \
+    apt-get purge --autoremove -y \
+        gcc g++ \
+    && \
+    apt-get autoremove --purge -y && \
+    apt-get clean              -y && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/lib/apt/lists/* \
+        /tmp/*               \
+        /var/tmp/*           \
+    && \
+    echo "..."
+
+# #########################################################################
+FROM ${BASE_IMAGE} as int--misc-tools
+ARG HELM_VERSION
+ARG KUBECTL_VERSION
+ARG APT__PYHTON3_VER
+
+SHELL ["/bin/bash", "-c"]
+
+RUN \
+    apt-get update &&\
+    apt-get -y install  \
+            python3-dev${APT__PYHTON3_VER} \
+            python3${APT__PYHTON3_VER} \
+            python3-pip \
+            python3-venv \
+            curl \
+    && \
+    pip3 list &&\
+    \
+    echo "..."
+
+RUN \
+        echo "===> Installing (tools)..." && \
+        python3 -m venv /venv/tools \
+        &&\
+        /venv/tools/bin/pip3 install --no-cache-dir \
+            docker-compose \
+            python-magic \
+            s3cmd \
+        && \
+        echo "..."
+
+RUN \
+        echo "===> Installing (azure-cli)..." && \
+        python3 -m venv /venv/az \
+        &&\
+        /venv/az/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            azure-cli \
+        &&\
+        echo "..."
+
+RUN \
+        echo "===> Installing (aws-cli)..." && \
+        python3 -m venv /venv/aws \
+        &&\
+        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            awscli \
+            saw \
+        &&\
+        echo "..."
+
+RUN \
+    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 &&\
+    chmod 700 get_helm.sh && \
+    if [ "${HELM_VERSION}" == "" ]; then \
+        echo " ===> Installing HELM latest...${HELM_VERSION}" &&\
+        ./get_helm.sh &&\
+        echo "..."; \
+    else \
+        echo " ===> Installing HELM ${HELM_VERSION}..." ; \
+        ./get_helm.sh -v "v${HELM_VERSION}" &&\
+        echo "..."; \
+    fi; \
+    helm version --client \
+    && \
+    echo "..."
+
+RUN \
+    cd /usr/local/bin &&\
+    if [ "${KUBECTL_VERSION}" == "" ]; then \
+        echo " ===> Installing Kubectl latest..." ; \
+        (curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl | bash) &&\
+        echo "..."; \
+    else \
+        echo " ===> Installing Kubectl ${KUBECTL_VERSION}..." ; \
+        (curl -LO https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl | bash) &&\
+        echo "..."; \
+    fi &&\
+    chmod a+x kubectl \
+    &&\
+    kubectl version --client \
+    && \
+    echo "..."
+
+# #########################################################################
+FROM krallin/ubuntu-tini:bionic as tini_src
+
+# #########################################################################
+FROM final
+
+# =========================================================================
+COPY --from=tini_src /usr/bin/tini* /usr/bin/
+RUN \
+    echo "Symlinkng to /usr/local/bin" && \
+    ln -s /usr/bin/tini        /usr/local/bin/tini && \
+    ln -s /usr/bin/tini-static /usr/local/bin/tini-static && \
+    echo "Running Smoke Test" && \
+    /usr/bin/tini -s -- ls && \
+    /usr/bin/tini-static -s -- ls && \
+    /usr/local/bin/tini -s -- ls && \
+    /usr/local/bin/tini-static -s -- ls && \
+    echo "OK!"
+
+# =========================================================================
+COPY --from=int--misc-tools /usr/local/bin/kubectl   /usr/local/bin
+COPY --from=int--misc-tools /usr/local/bin/helm      /usr/local/bin
+
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+COPY --from=int--misc-tools /venv   /venv
+
+RUN \
+    du -hd1 /venv &&\
+    \
+    echo "..."
+
+ENV PATH="/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+
+# #########################################################################
+# default command: display installed versions
+CMD \
+    python3 --version          | head -n 1 && \
+    pip3 --version             | head -n 1 && \
+    node --version             | head -n 1 && \
+    git  --version             | head -n 1 && \
+    az   --version             | head -n 1 && \
+    aws  --version             | head -n 1 && \
+    docker-compose --version   | head -n 1 && \
+    docker         --version   | head -n 1 && \
+    helm    version --client   | head -n 1 && \
+    kubectl version --client   | head -n 1 && \
+    openssl version            | head -n 1
