@@ -13,6 +13,7 @@ ARG DOCKER_VERSION
 LABEL maintainer="joao.costa@kit-ar.com"
 
 ENV DEBIAN_FRONTEND="noninteractive"
+ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
 
 ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
 ## uncomment if really needed

@@ -8,6 +8,8 @@ ARG APT__PYHTON3_VER
 ARG DOCKER_VERSION
 
 LABEL maintainer="webmaster@kit-ar.com"
+
+ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apt-get    update  && \
