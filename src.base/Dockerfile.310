@@ -1,0 +1,215 @@
+ARG BASE_IMAGE=alpine:3.11
+
+ARG HELM_VERSION=3.0.3
+
+# #########################################################################
+FROM ${BASE_IMAGE} as final
+
+LABEL maintainer="webmaster@kit-ar.com"
+
+# golang is not installed in the alpine version
+
+RUN \
+    echo "===> Updating TLS certificates..."         && \
+    apk --update --no-cache add \
+            ca-certificates \
+            openssl \
+    && \
+    echo "..."
+
+RUN \
+    echo "===> Adding usefull packages for devops shell-works..."  && \
+    apk --update --no-cache add \
+            coreutils \
+            openssh-client \
+            rsync \
+            tar \
+            make \
+            \
+            tini \
+            \
+            file \
+            bash \
+            bash-completion \
+            less \
+            nano \
+            jq \
+            \
+            curl \
+            wget \
+            \
+            virt-what \
+            zip \
+            xz \
+            unrar \
+            \
+            git \
+            \
+            mc \
+            mosh \
+            ncdu \
+            screen \
+            dos2unix \
+            \
+            lsscsi \
+            \
+            iotop \
+            htop \
+            atop \
+            sysstat \
+            iftop \
+            bmon \
+            \
+            iptraf-ng \
+            nethogs \
+            lsof \
+            util-linux \
+            mtr \
+            groff \
+        && \
+    \
+    sed -i -e "s/bin\/ash/bin\/bash/" /etc/passwd \
+    && \
+    echo "..."
+SHELL ["/bin/bash", "-c"]
+
+RUN \
+    echo "===> DB clients..."  && \
+    apk --update --no-cache add \
+            postgresql-client \
+            mysql-client \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Installing NodeJS 12.14+..."  && \
+    apk --update --no-cache add \
+            nodejs \
+            npm \
+            yarn \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Adding docker-ssh-exec..."  && \
+    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+         tar -xz --strip-components=1 -C /usr/local/bin \
+    && \
+    echo "..."
+
+RUN \
+    echo "===> Adding Docker cli..."  && \
+    apk --update --no-cache add \
+            docker-cli \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Adding Python runtime..."  && \
+    apk --update --no-cache add \
+            python3 \
+        && \
+    \
+    echo "===> Configuring Python and PIP..."  && \
+    pip3 list &&\
+    pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
+        pip setuptools wheel \
+        pip-tools \
+    && \
+    pip3 list && \
+    \
+    echo "===> Cleaning up ..."  && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/cache/apk/* \
+        /tmp/*           \
+        /var/tmp/*       \
+    && \
+    echo "..."
+
+# #########################################################################
+FROM ${BASE_IMAGE} as int--misc-tools
+ARG KUBECTL_VERSION
+
+RUN \
+    apk --update --no-cache add \
+        --virtual build-dependencies \
+            python3-dev \
+            build-base  \
+            openssl-dev \
+            libffi-dev \
+    && \
+    pip3 list &&\
+    \
+    echo "..."
+
+RUN \
+    echo "===> Installing (tools)..." && \
+        python3 -m venv /venv/tools \
+        &&\
+        /venv/tools/bin/pip3 install --no-cache-dir \
+            docker-compose \
+            python-magic \
+            s3cmd \
+        && \
+        echo "..."
+
+RUN \
+        echo "===> Installing (azure-cli)..." && \
+        python3 -m venv /venv/az \
+        &&\
+        /venv/az/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            azure-cli \
+        &&\
+        echo "..."
+
+RUN \
+        echo "===> Installing (aws-cli)..." && \
+        python3 -m venv /venv/aws \
+        &&\
+        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            awscli \
+            saw \
+    &&\
+    \
+    echo "..."
+
+# #########################################################################
+#FROM alpine/helm:${HELM_VERSION} as int--helm
+FROM dtzar/helm-kubectl:${HELM_VERSION} as int--helm-kubectl
+
+# #########################################################################
+FROM final
+
+# =========================================================================
+COPY --from=int--helm-kubectl /usr/local/bin/helm    /usr/local/bin/helm
+COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/local/bin/kubectl
+
+# =========================================================================
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+COPY --from=int--misc-tools /venv   /venv
+
+RUN \
+    du -hd1 /venv &&\
+    \
+    echo "..."
+
+ENV PATH="/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+
+# #########################################################################
+# default command: display installed versions
+CMD \
+    python3 --version          | head -n 1 && \
+    pip3 --version             | head -n 1 && \
+    node --version             | head -n 1 && \
+    git  --version             | head -n 1 && \
+    az   --version             | head -n 1 && \
+    aws  --version             | head -n 1 && \
+    docker-compose --version   | head -n 1 && \
+    docker         --version   | head -n 1 && \
+    helm    version --client   | head -n 1 && \
+    kubectl version --client   | head -n 1 && \
+    openssl version            | head -n 1
