@@ -115,7 +115,7 @@ CMD \
 #     pip  --version             | head -n 1 && \
     pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
-    ruby --version             | head -n 1 && \
+#    ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \
