@@ -4,6 +4,7 @@ ARG PIP__ANSIBLE_VER="~=2.7.0"
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
+ARG PIP__ANSIBLE_VER
 ARG APT__PYHTON3_VER
 ARG DOCKER_VERSION
 
@@ -30,7 +31,7 @@ RUN \
     echo "..."
 
 # #########################################################################
-FROM ${BASE_IMAGE} as int--misc-tools
+FROM final as int--misc-tools
 ARG PIP__ANSIBLE_VER
 ARG APT__PYHTON3_VER
 
@@ -66,7 +67,7 @@ RUN \
     echo "..."
 
 RUN \
-        echo "===> Installing (ansible)..." && \
+        echo "===> Installing (ansible) [${PIP__ANSIBLE_VER}]..." && \
         python3 -m venv /venv/ans \
         &&\
         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
