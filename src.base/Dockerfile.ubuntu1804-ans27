@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=ubuntu:18.04
+ARG BASE_IMAGE=ez123/ops-base:ubuntu1804
 
 ARG PIP__ANSIBLE_VER="~=2.7.0"
 
@@ -17,7 +17,7 @@ RUN \
             ca-certificates \
             openssl \
             ssl-cert \
-    \
+    && \
     echo "===> Cleaning up ..."  && \
     apt-get autoremove --purge -y && \
     apt-get clean              -y && \

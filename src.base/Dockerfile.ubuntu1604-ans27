@@ -17,7 +17,7 @@ RUN \
             ca-certificates \
             openssl \
             ssl-cert \
-    \
+    && \
     echo "===> Cleaning up ..."  && \
     apt-get autoremove --purge -y && \
     apt-get clean              -y && \
@@ -49,6 +49,7 @@ RUN \
             python3${APT__PYHTON3_VER} \
             python3-pip \
             python3-venv \
+            build-essential \
             libssl-dev \
             libffi-dev \
             curl \
