@@ -1,6 +1,7 @@
 ARG BASE_IMAGE=alpine:3.4
 
 ARG HELM_VERSION=3.0.3
+ARG DOCKER_VERSION=19.03.5
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
@@ -108,7 +109,6 @@ RUN \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
-    pip3 install --upgrade pip wheel setuptools    && \
     pip2 install --upgrade pip wheel 'setuptools<45.0.0' && \
     rm $(which pip) && \
     ln -s $(which pip2) /usr/local/bin/pip && \
@@ -128,7 +128,7 @@ RUN \
     echo "..."
 
 # #########################################################################
-FROM ${BASE_IMAGE} as int--misc-tools
+FROM final as int--misc-tools
 ARG KUBECTL_VERSION
 
 RUN \

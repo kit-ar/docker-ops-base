@@ -1,11 +1,13 @@
 ARG BASE_IMAGE=alpine:3.8
 
 ARG HELM_VERSION=3.0.3
+ARG DOCKER_VERSION=19.03.5
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
 
 LABEL maintainer="webmaster@kit-ar.com"
+ARG DOCKER_VERSION
 
 # golang is not installed in the alpine version
 
@@ -131,7 +133,7 @@ RUN \
     echo "..."
 
 # #########################################################################
-FROM ${BASE_IMAGE} as int--misc-tools
+FROM final as int--misc-tools
 ARG KUBECTL_VERSION
 
 RUN \

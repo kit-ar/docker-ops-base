@@ -108,6 +108,7 @@ RUN \
     echo "===> Adding Python runtime..."  && \
     apk --update --no-cache add \
             python3 \
+            py3-pip \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
@@ -128,7 +129,7 @@ RUN \
     echo "..."
 
 # #########################################################################
-FROM ${BASE_IMAGE} as int--misc-tools
+FROM final as int--misc-tools
 ARG KUBECTL_VERSION
 
 RUN \

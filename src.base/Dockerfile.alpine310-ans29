@@ -1,9 +1,10 @@
-ARG BASE_IMAGE=ez123/ops-base:alpine311
+ARG BASE_IMAGE=ez123/ops-base:alpine310
 
 ARG PIP__ANSIBLE_VER="~=2.9.0"
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
+ARG PIP__ANSIBLE_VER
 
 LABEL maintainer="webmaster@kit-ar.com"
 
@@ -24,8 +25,7 @@ RUN \
 #     echo "..."
 
 # #########################################################################
-FROM ${BASE_IMAGE} as int--misc-tools
-ARG PIP__ANSIBLE_VER
+FROM final as int--misc-tools
 
 # From alpine 3.7 onwards, since ansible2+4+ already supports python3,
 # we no longer install/support python2 by default.
@@ -58,7 +58,7 @@ RUN \
     echo "..."
 
 RUN \
-        echo "===> Installing (ansible)..." && \
+        echo "===> Installing (ansible) [${PIP__ANSIBLE_VER}]..." && \
         python3 -m venv /venv/ans \
         &&\
         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
@@ -94,6 +94,7 @@ RUN \
     echo "..."
 
 ENV PATH="/venv/ans/bin:$PATH"
+
 # #########################################################################
 # default command: display Ansible version
 CMD \
@@ -101,7 +102,7 @@ CMD \
     python3 --version          | head -n 1 && \
     pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
-    ruby --version             | head -n 1 && \
+#    ruby --version             | head -n 1 && \
     git  --version             | head -n 1 && \
     az   --version             | head -n 1 && \
     aws  --version             | head -n 1 && \

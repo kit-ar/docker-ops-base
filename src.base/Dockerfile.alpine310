@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=alpine:3.11
+ARG BASE_IMAGE=alpine:3.10
 
 ARG HELM_VERSION=3.0.3
 
@@ -128,7 +128,7 @@ RUN \
     echo "..."
 
 # #########################################################################
-FROM ${BASE_IMAGE} as int--misc-tools
+FROM final as int--misc-tools
 ARG KUBECTL_VERSION
 
 RUN \
@@ -138,6 +138,7 @@ RUN \
             build-base  \
             openssl-dev \
             libffi-dev \
+            py3-pynacl \
     && \
     pip3 list &&\
     \

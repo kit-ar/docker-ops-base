@@ -22,7 +22,6 @@ build-base-alpine: build-base-alpine38-ans27
 build-base-alpine: build-base-alpine34-ans27
 # dockerfiles: 9
 
-
 build-base-alpineedge:                                     r--build-base-alpineedge
 build-base-alpine311:                                      r--build-base-alpine311
 build-base-alpine310:                                      r--build-base-alpine310
@@ -42,38 +41,52 @@ build-base-alpine34-ans27:          build-base-alpine34    r--build-base-alpine3
 # --------------------------------------------------------------------------
 pull-base: pull-base-alpine
 
-pull-base-alpine: r--pull-base-alpineedge
-pull-base-alpine: r--pull-base-alpine311
-pull-base-alpine: r--pull-base-alpine310
-pull-base-alpine: r--pull-base-alpine38
-pull-base-alpine: r--pull-base-alpine34
+pull-base-alpine: pull-base-alpineedge
+pull-base-alpine: pull-base-alpine311
+pull-base-alpine: pull-base-alpine310
+pull-base-alpine: pull-base-alpine38
+pull-base-alpine: pull-base-alpine34
 
-pull-base-alpine: r--pull-base-alpineedge-ans
-# pull-base-alpine: r--pull-base-alpine311-ans29-py38
-pull-base-alpine: r--pull-base-alpine311-ans29
-pull-base-alpine: r--pull-base-alpine311-ans27
-pull-base-alpine: r--pull-base-alpine310-ans29
-pull-base-alpine: r--pull-base-alpine310-ans27
-pull-base-alpine: r--pull-base-alpine38-ans27
-pull-base-alpine: r--pull-base-alpine34-ans27
+
+pull-base-alpineedge: r--pull-base-alpineedge
+pull-base-alpine311:  r--pull-base-alpine311
+pull-base-alpine310:  r--pull-base-alpine310
+pull-base-alpine38:   r--pull-base-alpine38
+pull-base-alpine34:   r--pull-base-alpine34
+
+pull-base-alpineedge: r--pull-base-alpineedge-ans
+# pull-base-alpine311: r--pull-base-alpine311-ans29-py38
+pull-base-alpine311:  r--pull-base-alpine311-ans29
+pull-base-alpine311:  r--pull-base-alpine311-ans27
+pull-base-alpine310:  r--pull-base-alpine310-ans29
+pull-base-alpine310:  r--pull-base-alpine310-ans27
+pull-base-alpine38:   r--pull-base-alpine38-ans27
+pull-base-alpine34:   r--pull-base-alpine34-ans27
 
 # --------------------------------------------------------------------------
 push-base: push-base-alpine
 
-push-base-alpine: r--push-base-alpineedge
-push-base-alpine: r--push-base-alpine311
-push-base-alpine: r--push-base-alpine310
-push-base-alpine: r--push-base-alpine38
-push-base-alpine: r--push-base-alpine34
+push-base-alpine: push-base-alpineedge
+push-base-alpine: push-base-alpine311
+push-base-alpine: push-base-alpine310
+push-base-alpine: push-base-alpine38
+push-base-alpine: push-base-alpine34
 
-push-base-alpine: r--push-base-alpineedge-ans
-# push-base-alpine: r--push-base-alpine311-ans29-py38
-push-base-alpine: r--push-base-alpine311-ans29
-push-base-alpine: r--push-base-alpine311-ans27
-push-base-alpine: r--push-base-alpine310-ans29
-push-base-alpine: r--push-base-alpine310-ans27
-push-base-alpine: r--push-base-alpine38-ans27
-push-base-alpine: r--push-base-alpine34-ans27
+
+push-base-alpineedge: r--push-base-alpineedge
+push-base-alpine311:  r--push-base-alpine311
+push-base-alpine310:  r--push-base-alpine310
+push-base-alpine38:   r--push-base-alpine38
+push-base-alpine34:   r--push-base-alpine34
+
+push-base-alpineedge:  r--push-base-alpineedge-ans
+# push-base-alpine311:  r--push-base-alpine311-ans29-py38
+push-base-alpine311:   r--push-base-alpine311-ans29
+push-base-alpine311:   r--push-base-alpine311-ans27
+push-base-alpine310:   r--push-base-alpine310-ans29
+push-base-alpine310:   r--push-base-alpine310-ans27
+push-base-alpine38:    r--push-base-alpine38-ans27
+push-base-alpine34:    r--push-base-alpine34-ans27
 
 # --------------------------------------------------------------------------
 shell-base-alpine: shell-base-alpineedge
