@@ -209,7 +209,7 @@ RUN \
         echo "..."
 
 RUN \
-        echo "===> Installing (ansible)..." && \
+        echo "===> Installing (ansible) [${PIP__ANSIBLE_VER}]..." && \
         python3 -m venv /venv/ans \
         &&\
         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
