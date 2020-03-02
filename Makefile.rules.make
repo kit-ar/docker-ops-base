@@ -14,6 +14,22 @@ r--build-base-%: check-env-base
 		| tee /tmp/docker-ops-base-$*.log \
 		;\
 
+r--rebuild-base-%: check-env-base
+	@echo "####################################################"
+	@echo "Starting build:  $(DH_ID_base):$*-${TAG_VERSION}"
+	@echo ""
+	cd $(THIS_DIR)src.base ;\
+	docker build $(BUILD_CACHE) -f Dockerfile.$* \
+			--pull \
+			--rm \
+			--no-cache \
+			-t $(DH_ID_base):$* \
+			-t $(DH_ID_base):$*-${TAG_VERSION} \
+			. \
+		| tee /tmp/docker-ops-base-$*.log \
+		;\
+
+
 # --------------------------------------------------------------------------
 r--push-base-%: check-env-base
 	docker push $(DH_ID_base):$*
