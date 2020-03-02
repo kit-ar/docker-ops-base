@@ -4,6 +4,28 @@
 .SHELLFLAGS = -e
 
 # --------------------------------------------------------------------------
+build-all-alpine: build-all-alpineedge
+build-all-alpine: build-all-alpine311
+build-all-alpine: build-all-alpine310
+build-all-alpine: build-all-alpine38
+build-all-alpine: build-all-alpine34
+
+build-all-alpineedge: 	build-base-alpineedge
+build-all-alpine311: 	build-base-alpine311
+build-all-alpine310: 	build-base-alpine310
+build-all-alpine38: 	build-base-alpine38
+build-all-alpine34: 	build-base-alpine34
+
+build-all-alpineedge: 	build-base-alpineedge-ans
+# build-all-alpine311: 	build-base-alpine311-ans29-py38
+build-all-alpine311: 	build-base-alpine311-ans29
+build-all-alpine311: 	build-base-alpine311-ans27
+build-all-alpine310:	build-base-alpine310-ans29
+build-all-alpine310:	build-base-alpine310-ans27
+build-all-alpine38:		build-base-alpine38-ans27
+build-all-alpine34:		build-base-alpine34-ans27
+
+# --------------------------------------------------------------------------
 build-base: build-base-alpine
 
 build-base-alpine: build-base-alpineedge

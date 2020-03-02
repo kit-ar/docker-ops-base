@@ -19,8 +19,6 @@ ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
 ## uncomment if really needed
 # ENV PYHELM_PIP3=pyhelm
 
-SHELL ["/bin/bash", "-c"]
-
 RUN \
     echo "===> Enabling Multiverse..."  && \
     sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
