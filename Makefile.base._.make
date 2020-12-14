@@ -1,4 +1,4 @@
-# v2.6.0    2020-01-26     webmaster@highskillz.com
+# v3.0.0    2020-12-13     webmaster@kit-ar.com
 
 # .ONESHELL:
 .SHELLFLAGS = -e

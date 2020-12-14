@@ -6,7 +6,7 @@ FROM ${BASE_IMAGE} as final
 
 LABEL maintainer="webmaster@kit-ar.com"
 
-# # ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
+# ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apk --update --no-cache add \
@@ -23,14 +23,21 @@ RUN \
 #     echo "..."
 
 RUN \
-    echo "===> Adding ansible and others *..."  && \
+    echo "===> Adding ansible-base and others *..."  && \
     apk --update --no-cache add \
-            ansible \
-            ansible-lint \
+            ansible-base \
+            # ansible-lint \
             docker-py \
             py3-boto \
             py3-boto3 \
-        && \
+        \
+    && \
+    \
+    curl -O https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt && \
+    pip install -r requirements-azure.txt  && \
+    rm requirements-azure.txt  && \
+    ansible-galaxy collection install azure.azcollection  && \
+    \
     echo "..."
 
 # # #########################################################################

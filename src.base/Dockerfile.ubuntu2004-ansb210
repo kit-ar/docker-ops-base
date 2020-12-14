@@ -1,31 +1,39 @@
-ARG BASE_IMAGE=ez123/ops-base:alpine38
+ARG BASE_IMAGE=kitarukops/ops-base:ubuntu1804
 
-ARG PIP__ANSIBLE_VER="~=2.7.0"
+ARG PIP__ANSIBLE_VER="~=2.10.0"
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
 ARG PIP__ANSIBLE_VER
+ARG APT__PYHTON3_VER
+ARG DOCKER_VERSION
 
 LABEL maintainer="webmaster@kit-ar.com"
 
 ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
 RUN \
     echo "===> Updating TLS certificates..."         && \
-    apk --update --no-cache add \
+    apt-get    update  && \
+    apt-get -y install \
             ca-certificates \
             openssl \
+            ssl-cert \
+    && \
+    echo "===> Cleaning up ..."  && \
+    apt-get autoremove --purge -y && \
+    apt-get clean              -y && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/lib/apt/lists/* \
+        /tmp/*               \
+        /var/tmp/*           \
     && \
     echo "..."
 
-# RUN \
-#     echo "===> Adding Ruby 2.6.5+..."  && \
-#     apk --update --no-cache add \
-#             ruby \
-#         && \
-#     echo "..."
-
 # #########################################################################
 FROM final as int--misc-tools
+ARG PIP__ANSIBLE_VER
+ARG APT__PYHTON3_VER
 
 # From alpine 3.7 onwards, since ansible2+4+ already supports python3,
 # we no longer install/support python2 by default.
@@ -36,26 +44,16 @@ FROM final as int--misc-tools
 # ENV PYHELM_PIP3=pyhelm
 
 RUN \
-    apk --update --no-cache add \
-        --virtual build-dependencies \
-            python3-dev \
-            build-base  \
-            openssl-dev \
-            libffi-dev \
-            libc-dev \
+    apt-get update &&\
+    apt-get -y install  \
+            python3-dev${APT__PYHTON3_VER} \
+            python3${APT__PYHTON3_VER} \
+            python3-pip \
+            python3-venv \
+            curl \
     && \
     pip3 list &&\
     \
-    echo "..."
-
-RUN \
-    echo "===> Installing Ansible (via PIP)..." \
-    echo "===> Installing ansible and ansible[azure] in separate steps..." \
-    echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
-    echo "===> Installing azure-cli and ansible[azure] in separate virtuaenv to prevent version conflicts..." \
-    echo "===> as of 2020-02-09, we could not find any other option..." \
-    echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
-    && \
     echo "..."
 
 RUN \
@@ -67,7 +65,7 @@ RUN \
             # ansible${PIP__ANSIBLE_VER} \
         && \
         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
-            ansible[azure]${PIP__ANSIBLE_VER} \
+            ansible-base${PIP__ANSIBLE_VER} \
             \
             boto \
             \
@@ -75,8 +73,6 @@ RUN \
             ${PYHELM_PIP3} \
             \
             docker \
-            \
-            ansible-lint \
             \
         &&\
         echo "..."

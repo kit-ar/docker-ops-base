@@ -1,6 +1,6 @@
 ARG BASE_IMAGE=alpine:3.11
 
-ARG HELM_VERSION=3.1.1
+ARG HELM_VERSION=3.3.4
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
@@ -90,13 +90,13 @@ RUN \
         && \
     echo "..."
 
-RUN \
-    echo "===> Adding docker-ssh-exec..."  && \
-    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
-         tar -xz --strip-components=1 -C /usr/local/bin \
-    && \
-    echo "..."
-
+# RUN \
+#     echo "===> Adding docker-ssh-exec..."  && \
+#     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+#          tar -xz --strip-components=1 -C /usr/local/bin \
+#     && \
+#     echo "..."
+#
 RUN \
     echo "===> Adding Docker cli..."  && \
     apk --update --no-cache add \
@@ -148,8 +148,8 @@ RUN \
         python3 -m venv /venv/tools \
         &&\
         /venv/tools/bin/pip3 install --no-cache-dir \
-            docker-compose \
             python-magic \
+            docker-compose \
             s3cmd \
         && \
         echo "..."

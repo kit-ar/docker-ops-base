@@ -1,7 +1,5 @@
 ARG BASE_IMAGE=alpine:edge
 
-ARG HELM_VERSION=3.1.1
-
 # #########################################################################
 FROM ${BASE_IMAGE} as final
 
@@ -82,7 +80,7 @@ RUN \
     echo "..."
 
 RUN \
-    echo "===> Installing NodeJS 12.14+..."  && \
+    echo "===> Installing NodeJS 12.18+..."  && \
     apk --update --no-cache add \
             nodejs \
             npm \
@@ -90,17 +88,38 @@ RUN \
         && \
     echo "..."
 
+# RUN \
+#     echo "===> Adding docker-ssh-exec..."  && \
+#     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+#          tar -xz --strip-components=1 -C /usr/local/bin \
+#     && \
+#     echo "..."
+#
 RUN \
-    echo "===> Adding docker-ssh-exec..."  && \
-    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
-         tar -xz --strip-components=1 -C /usr/local/bin \
-    && \
+    echo "===> Adding Docker cli ..."  && \
+    apk --update --no-cache add \
+            docker-cli \
+            docker-compose \
+        && \
     echo "..."
 
 RUN \
-    echo "===> Adding Docker cli..."  && \
-    apk --update --no-cache add \
-            docker-cli \
+    echo "===> Adding Kubectl, Helm ..."  && \
+    apk --update --no-cache \
+        --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted \
+        add \
+            kubectl \
+            helm \
+        && \
+    echo "..."
+
+RUN \
+    echo "===> Adding AWS cli ..."  && \
+    apk --update --no-cache \
+        --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted \
+        add \
+            aws-cli \
+            s3cmd \
         && \
     echo "..."
 
@@ -112,7 +131,7 @@ RUN \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
-    pip3 list &&\
+    pip3 list && \
     pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
         pip setuptools wheel \
         pip-tools \
@@ -149,9 +168,7 @@ RUN \
         python3 -m venv /venv/tools \
         &&\
         /venv/tools/bin/pip3 install --no-cache-dir \
-            docker-compose \
             python-magic \
-            s3cmd \
         && \
         echo "..."
 
@@ -165,28 +182,8 @@ RUN \
         &&\
         echo "..."
 
-RUN \
-        echo "===> Installing (aws-cli)..." && \
-        python3 -m venv /venv/aws \
-        &&\
-        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-            pip \
-            awscli \
-            saw \
-    &&\
-    \
-    echo "..."
-
-# #########################################################################
-#FROM alpine/helm:${HELM_VERSION} as int--helm
-FROM dtzar/helm-kubectl:${HELM_VERSION} as int--helm-kubectl
-
 # #########################################################################
 FROM final
-
-# =========================================================================
-COPY --from=int--helm-kubectl /usr/local/bin/helm    /usr/local/bin/helm
-COPY --from=int--helm-kubectl /usr/local/bin/kubectl /usr/local/bin/kubectl
 
 # =========================================================================
 # we rely on the intermediate image and the final image being the same;
@@ -198,7 +195,7 @@ RUN \
     \
     echo "..."
 
-ENV PATH="/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+ENV PATH="/venv/az/bin:/venv/tools/bin:$PATH"
 
 # #########################################################################
 # default command: display installed versions

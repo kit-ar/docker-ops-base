@@ -1,7 +1,7 @@
-# v2.4.3    2020-02-12     webmaster@highskillz.com
-TAG_VERSION=200302a
+# v3.0.0    2020-12-12     webmaster@kit-ar.com
+TAG_VERSION=201212a
 
-DH_ID_base=ez123/ops-base
+DH_ID_base=kitarukops/ops-base
 
 # .ONESHELL:
 # SHELL = bash
@@ -11,8 +11,9 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TIMESTAMP=$(shell date -u +"%Y%m%d_%H%M%S%Z")
 
 BUILD_CACHE=
-#BUILD_CACHE=--pull
-##BUILD_CACHE=--no-cache --force-rm
+# # BUILD_CACHE=--pull
+# # BUILD_CACHE=--no-cache --force-rm
+# BUILD_CACHE=--pull --no-cache --force-rm
 
 all:
 default:
@@ -34,9 +35,9 @@ build-alpine: build-base-alpine
 build-ubuntu: build-base-ubuntu
 # # build-deb:    build-base-deb
 
-build-latest: build-base-alpine311-ans29
-build-latest: build-base-ubuntu1804-ans29
-# build-latest: build-base-deb10-ans29-py37
+build-latest: build-base-alpine311-ans209
+build-latest: build-base-ubuntu1804-ans210
+# build-latest: build-base-deb10-ans209-py37
 
 pull: pull-alpine
 pull: pull-ubuntu

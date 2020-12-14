@@ -1,132 +1,97 @@
-# v2.6.0    2020-01-26     webmaster@highskillz.com
+# v3.0.0    2020-12-13     webmaster@kit-ar.com
 
 # .ONESHELL:
 .SHELLFLAGS = -e
 
 # --------------------------------------------------------------------------
 build-all-alpine: build-all-alpineedge
+build-all-alpine: build-all-alpine312
 build-all-alpine: build-all-alpine311
-build-all-alpine: build-all-alpine310
-build-all-alpine: build-all-alpine38
-build-all-alpine: build-all-alpine34
 
 build-all-alpineedge: 	build-base-alpineedge
+build-all-alpine312: 	build-base-alpine312
 build-all-alpine311: 	build-base-alpine311
-build-all-alpine310: 	build-base-alpine310
-build-all-alpine38: 	build-base-alpine38
-build-all-alpine34: 	build-base-alpine34
 
 build-all-alpineedge: 	build-base-alpineedge-ans
-# build-all-alpine311: 	build-base-alpine311-ans29-py38
-build-all-alpine311: 	build-base-alpine311-ans29
-build-all-alpine311: 	build-base-alpine311-ans27
-build-all-alpine310:	build-base-alpine310-ans29
-build-all-alpine310:	build-base-alpine310-ans27
-build-all-alpine38:		build-base-alpine38-ans27
-build-all-alpine34:		build-base-alpine34-ans27
+build-all-alpineedge: 	build-base-alpineedge-ansb
+build-all-alpine312:	build-base-alpine312-ansb210
+build-all-alpine312:	build-base-alpine312-ans210
+# build-all-alpine312:	build-base-alpine312-ans209
+build-all-alpine311: 	build-base-alpine311-ans209
 
 # --------------------------------------------------------------------------
 build-base: build-base-alpine
 
 build-base-alpine: build-base-alpineedge
+build-base-alpine: build-base-alpine312
 build-base-alpine: build-base-alpine311
-build-base-alpine: build-base-alpine310
-build-base-alpine: build-base-alpine38
-build-base-alpine: build-base-alpine34
 
-build-base-alpine: build-base-alpineedge-ans
-# build-base-alpine: build-base-alpine311-ans29-py38
-build-base-alpine: build-base-alpine311-ans29
-build-base-alpine: build-base-alpine311-ans27
-build-base-alpine: build-base-alpine310-ans29
-build-base-alpine: build-base-alpine310-ans27
-build-base-alpine: build-base-alpine38-ans27
-build-base-alpine: build-base-alpine34-ans27
-# dockerfiles: 9
+build-base-alpine: build-base-alpineedge-ansb
+build-base-alpine: build-base-alpine312-ansb210
+build-base-alpine: build-base-alpine312-ans210
+# build-base-alpine: build-base-alpine312-ans209
+build-base-alpine: build-base-alpine311-ans209
 
 build-base-alpineedge:                                     r--build-base-alpineedge
+build-base-alpine312:                                      r--build-base-alpine312
 build-base-alpine311:                                      r--build-base-alpine311
-build-base-alpine310:                                      r--build-base-alpine310
-build-base-alpine38:                                       r--build-base-alpine38
-build-base-alpine34:                                       r--build-base-alpine34
 
 build-base-alpineedge-ans:          build-base-alpineedge  r--build-base-alpineedge-ans
-# build-base-alpine311-ans29-py38:                           r--build-base-alpine311-ans29-py38
-build-base-alpine311-ans29:         build-base-alpine311   r--build-base-alpine311-ans29
-build-base-alpine311-ans27:         build-base-alpine311   r--build-base-alpine311-ans27
-build-base-alpine310-ans29:         build-base-alpine310   r--build-base-alpine310-ans29
-build-base-alpine310-ans27:         build-base-alpine310   r--build-base-alpine310-ans27
-build-base-alpine38-ans27:          build-base-alpine38    r--build-base-alpine38-ans27
-build-base-alpine34-ans27:          build-base-alpine34    r--build-base-alpine34-ans27
-# images:      9
+build-base-alpineedge-ansb:          build-base-alpineedge  r--build-base-alpineedge-ansb
+build-base-alpine312-ansb210:        build-base-alpine312   r--build-base-alpine312-ansb210
+build-base-alpine312-ans210:         build-base-alpine312   r--build-base-alpine312-ans210
+# # build-base-alpine312-ans209:         build-base-alpine312   r--build-base-alpine312-ans209
+build-base-alpine311-ans209:         build-base-alpine311   r--build-base-alpine311-ans209
 
 # --------------------------------------------------------------------------
 pull-base: pull-base-alpine
 
 pull-base-alpine: pull-base-alpineedge
+pull-base-alpine: pull-base-alpine312
 pull-base-alpine: pull-base-alpine311
-pull-base-alpine: pull-base-alpine310
-pull-base-alpine: pull-base-alpine38
-pull-base-alpine: pull-base-alpine34
-
 
 pull-base-alpineedge: r--pull-base-alpineedge
+pull-base-alpine312:  r--pull-base-alpine312
 pull-base-alpine311:  r--pull-base-alpine311
-pull-base-alpine310:  r--pull-base-alpine310
-pull-base-alpine38:   r--pull-base-alpine38
-pull-base-alpine34:   r--pull-base-alpine34
 
 pull-base-alpineedge: r--pull-base-alpineedge-ans
-# pull-base-alpine311: r--pull-base-alpine311-ans29-py38
-pull-base-alpine311:  r--pull-base-alpine311-ans29
-pull-base-alpine311:  r--pull-base-alpine311-ans27
-pull-base-alpine310:  r--pull-base-alpine310-ans29
-pull-base-alpine310:  r--pull-base-alpine310-ans27
-pull-base-alpine38:   r--pull-base-alpine38-ans27
-pull-base-alpine34:   r--pull-base-alpine34-ans27
+pull-base-alpineedge: r--pull-base-alpineedge-ansb
+pull-base-alpine312:  r--pull-base-alpine312-ansb210
+pull-base-alpine312:  r--pull-base-alpine312-ans210
+# pull-base-alpine312:  r--pull-base-alpine312-ans209
+pull-base-alpine311:  r--pull-base-alpine311-ans209
 
 # --------------------------------------------------------------------------
 push-base: push-base-alpine
 
 push-base-alpine: push-base-alpineedge
+push-base-alpine: push-base-alpine312
 push-base-alpine: push-base-alpine311
-push-base-alpine: push-base-alpine310
-push-base-alpine: push-base-alpine38
-push-base-alpine: push-base-alpine34
-
 
 push-base-alpineedge: r--push-base-alpineedge
+push-base-alpine312:  r--push-base-alpine312
 push-base-alpine311:  r--push-base-alpine311
-push-base-alpine310:  r--push-base-alpine310
-push-base-alpine38:   r--push-base-alpine38
-push-base-alpine34:   r--push-base-alpine34
 
 push-base-alpineedge:  r--push-base-alpineedge-ans
-# push-base-alpine311:  r--push-base-alpine311-ans29-py38
-push-base-alpine311:   r--push-base-alpine311-ans29
-push-base-alpine311:   r--push-base-alpine311-ans27
-push-base-alpine310:   r--push-base-alpine310-ans29
-push-base-alpine310:   r--push-base-alpine310-ans27
-push-base-alpine38:    r--push-base-alpine38-ans27
-push-base-alpine34:    r--push-base-alpine34-ans27
+push-base-alpineedge:  r--push-base-alpineedge-ansb
+push-base-alpine312:   r--push-base-alpine312-ansb210
+push-base-alpine312:   r--push-base-alpine312-ans210
+# push-base-alpine312:   r--push-base-alpine312-ans209
+push-base-alpine311:   r--push-base-alpine311-ans209
 
 # --------------------------------------------------------------------------
 shell-base-alpine: shell-base-alpineedge
 
 shell-base-alpineedge:           r--shell-base-alpineedge
+shell-base-alpine312:            r--shell-base-alpine312
 shell-base-alpine311:            r--shell-base-alpine311
-shell-base-alpine310:            r--shell-base-alpine310
-shell-base-alpine38:             r--shell-base-alpine38
-shell-base-alpine34:             r--shell-base-alpine34
 
 shell-base-alpineedge-ans:       r--shell-base-alpineedge-ans
-# shell-base-alpine311-ans29-py38: r--shell-base-alpine311-ans29-py38
-shell-base-alpine311-ans29:      r--shell-base-alpine311-ans29
-shell-base-alpine311-ans27:      r--shell-base-alpine311-ans27
-shell-base-alpine310-ans29:      r--shell-base-alpine310-ans29
-shell-base-alpine310-ans27:      r--shell-base-alpine310-ans27
-shell-base-alpine38-ans27:       r--shell-base-alpine38-ans27
-shell-base-alpine34-ans27:       r--shell-base-alpine34-ans27
+shell-base-alpineedge-ansb:      r--shell-base-alpineedge-ansb
+shell-base-alpine312-ansb210:    r--shell-base-alpine312-ansb210
+shell-base-alpine312-ans210:     r--shell-base-alpine312-ans210
+# # shell-base-alpine312-ans209:     r--shell-base-alpine312-ans209
+shell-base-alpine311-ans209:     r--shell-base-alpine311-ans209
 
 # --------------------------------------------------------------------------
 # TEST_TAG=-181112c
@@ -135,31 +100,23 @@ shell-base-alpine34-ans27:       r--shell-base-alpine34-ans27
 test-alpine:             test-base-alpine
 
 test-base-alpine:        test-base-alpineedge
-test-base-alpine:        test-base-alpine311
-test-base-alpine:        test-base-alpine310
-test-base-alpine:        test-base-alpine38
-test-base-alpine:        test-base-alpine34
+test-base-alpine:        test-base-alpine312
+test-base-alpine:        test-base-alpine312
 
 test-base-alpine:        test-base-alpineedge-ans
-# test-base-alpine:        test-base-alpine311-ans29-py38
-test-base-alpine:        test-base-alpine311-ans29
-test-base-alpine:        test-base-alpine311-ans27
-test-base-alpine:        test-base-alpine310-ans29
-test-base-alpine:        test-base-alpine310-ans27
-test-base-alpine:        test-base-alpine38-ans27
-test-base-alpine:        test-base-alpine34-ans27
+test-base-alpine:        test-base-alpineedge-ansb
+test-base-alpine:        test-base-alpine312-ansb210
+test-base-alpine:        test-base-alpine312-ans210
+# test-base-alpine:        test-base-alpine312-ans209
+test-base-alpine:        test-base-alpine311-ans209
 
 test-base-alpineedge:           r--test-base-alpineedge$(TEST_TAG)
+test-base-alpine312:            r--test-base-alpine312$(TEST_TAG)
 test-base-alpine311:            r--test-base-alpine311$(TEST_TAG)
-test-base-alpine310:            r--test-base-alpine310$(TEST_TAG)
-test-base-alpine38:             r--test-base-alpine38$(TEST_TAG)
-test-base-alpine34:             r--test-base-alpine34$(TEST_TAG)
 
 test-base-alpineedge-ans:       r--test-base-alpineedge-ans$(TEST_TAG)
-# test-base-alpine311-ans29-py38: r--test-base-alpine311-ans29-py38$(TEST_TAG)
-test-base-alpine311-ans29:      r--test-base-alpine311-ans29$(TEST_TAG)
-test-base-alpine311-ans27:      r--test-base-alpine311-ans27$(TEST_TAG)
-test-base-alpine310-ans29:      r--test-base-alpine310-ans29$(TEST_TAG)
-test-base-alpine310-ans27:      r--test-base-alpine310-ans27$(TEST_TAG)
-test-base-alpine38-ans27:       r--test-base-alpine38-ans27$(TEST_TAG)
-test-base-alpine34-ans27:       r--test-base-alpine34-ans27$(TEST_TAG)
+test-base-alpineedge-ansb:      r--test-base-alpineedge-ansb$(TEST_TAG)
+test-base-alpine312-ansb210:    r--test-base-alpine312-ansb210$(TEST_TAG)
+test-base-alpine312-ans210:     r--test-base-alpine312-ans210$(TEST_TAG)
+# # test-base-alpine312-ans209:     r--test-base-alpine312-ans209$(TEST_TAG)
+test-base-alpine311-ans209:     r--test-base-alpine311-ans209$(TEST_TAG)

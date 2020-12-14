@@ -1,31 +1,39 @@
-ARG BASE_IMAGE=ez123/ops-base:alpine34
+ARG BASE_IMAGE=kitarukops/ops-base:ubuntu1804
 
-ARG PIP__ANSIBLE_VER="~=2.7.0"
+ARG PIP__ANSIBLE_VER="~=2.10.0"
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
 ARG PIP__ANSIBLE_VER
+ARG APT__PYHTON3_VER
+ARG DOCKER_VERSION
 
 LABEL maintainer="webmaster@kit-ar.com"
 
 ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
 RUN \
     echo "===> Updating TLS certificates..."         && \
-    apk --update --no-cache add \
+    apt-get    update  && \
+    apt-get -y install \
             ca-certificates \
             openssl \
+            ssl-cert \
+    && \
+    echo "===> Cleaning up ..."  && \
+    apt-get autoremove --purge -y && \
+    apt-get clean              -y && \
+    rm -rf \
+        "${HOME}/.cache" \
+        /var/lib/apt/lists/* \
+        /tmp/*               \
+        /var/tmp/*           \
     && \
     echo "..."
 
-# RUN \
-#     echo "===> Adding Ruby 2.x..."  && \
-#     apk --update --no-cache add \
-#             ruby \
-#         && \
-#     echo "..."
-
 # #########################################################################
 FROM final as int--misc-tools
+ARG PIP__ANSIBLE_VER
+ARG APT__PYHTON3_VER
 
 # From alpine 3.7 onwards, since ansible2+4+ already supports python3,
 # we no longer install/support python2 by default.
@@ -36,24 +44,15 @@ FROM final as int--misc-tools
 # ENV PYHELM_PIP3=pyhelm
 
 RUN \
-    apk --update --no-cache add \
-            python py-pip \
-        && \
-    \
-    echo "===> Configuring Python and PIP..."  && \
-    pip2 install --upgrade pip wheel 'setuptools<45.0.0' && \
-    pip list && \
-    \
-    apk --update --no-cache add \
-        --virtual build-dependencies \
-            py-virtualenv \
-            python-dev \
-            build-base  \
-            openssl-dev \
-            libffi-dev \
-            libc-dev \
+    apt-get update &&\
+    apt-get -y install  \
+            python3-dev${APT__PYHTON3_VER} \
+            python3${APT__PYHTON3_VER} \
+            python3-pip \
+            python3-venv \
+            curl \
     && \
-    pip list &&\
+    pip3 list &&\
     \
     echo "..."
 
@@ -69,14 +68,13 @@ RUN \
 
 RUN \
         echo "===> Installing (ansible) [${PIP__ANSIBLE_VER}]..." && \
-        virtualenv /venv/ans \
+        python3 -m venv /venv/ans \
         &&\
-        /venv/ans/bin/pip install --no-cache-dir --upgrade \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             pip \
-            wheel \
-            'setuptools<45.0.0' \
-        &&\
-        /venv/ans/bin/pip install --no-cache-dir --upgrade \
+            # ansible${PIP__ANSIBLE_VER} \
+        && \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             ansible[azure]${PIP__ANSIBLE_VER} \
             \
             boto \
@@ -110,9 +108,7 @@ ENV PATH="/venv/ans/bin:$PATH"
 # default command: display Ansible version
 CMD \
     ansible-playbook --version | head -n 1 && \
-    python  --version          | head -n 1 && \
     python3 --version          | head -n 1 && \
-    pip  --version             | head -n 1 && \
     pip3 --version             | head -n 1 && \
     node --version             | head -n 1 && \
 #    ruby --version             | head -n 1 && \

@@ -1,13 +1,11 @@
-ARG BASE_IMAGE=alpine:3.8
+ARG BASE_IMAGE=alpine:3.12
 
-ARG HELM_VERSION=3.1.1
-ARG DOCKER_VERSION=19.03.5
+ARG HELM_VERSION=3.3.4
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
 
 LABEL maintainer="webmaster@kit-ar.com"
-ARG DOCKER_VERSION
 
 # golang is not installed in the alpine version
 
@@ -84,7 +82,7 @@ RUN \
     echo "..."
 
 RUN \
-    echo "===> Installing NodeJS 12.14+..."  && \
+    echo "===> Installing NodeJS 12.18+..."  && \
     apk --update --no-cache add \
             nodejs \
             npm \
@@ -92,31 +90,37 @@ RUN \
         && \
     echo "..."
 
+# RUN \
+#     echo "===> Adding docker-ssh-exec..."  && \
+#     curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
+#          tar -xz --strip-components=1 -C /usr/local/bin \
+#     && \
+#     echo "..."
+#
 RUN \
-    echo "===> Adding docker-ssh-exec..."  && \
-    curl -L https://github.com/mdsol/docker-ssh-exec/releases/download/v0.5.2/docker-ssh-exec_0.5.2_linux_amd64.tar.gz | \
-         tar -xz --strip-components=1 -C /usr/local/bin \
-    && \
+    echo "===> Adding Docker cli..."  && \
+    apk --update --no-cache add \
+            docker-cli \
+            docker-compose \
+        && \
     echo "..."
 
 RUN \
-    echo "===> Adding Docker cli..."  && \
-    curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
-    tar xzvf docker-${DOCKER_VERSION}.tgz --strip 1 \
-            -C /usr/local/bin docker/docker \
-    && \
-    rm docker-${DOCKER_VERSION}.tgz \
-    && \
+    echo "===> Adding AWS cli ..."  && \
+    apk --update --no-cache add \
+            aws-cli \
+        && \
     echo "..."
 
 RUN \
     echo "===> Adding Python runtime..."  && \
     apk --update --no-cache add \
             python3 \
+            py3-pip \
         && \
     \
     echo "===> Configuring Python and PIP..."  && \
-    pip3 list &&\
+    pip3 list && \
     pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
         pip setuptools wheel \
         pip-tools \
@@ -153,7 +157,6 @@ RUN \
         python3 -m venv /venv/tools \
         &&\
         /venv/tools/bin/pip3 install --no-cache-dir \
-            docker-compose \
             python-magic \
             s3cmd \
         && \
@@ -161,9 +164,6 @@ RUN \
 
 RUN \
         echo "===> Installing (azure-cli)..." && \
-        apk --update --no-cache add \
-            linux-headers \
-        &&\
         python3 -m venv /venv/az \
         &&\
         /venv/az/bin/pip3 install --no-cache-dir --upgrade \
@@ -171,18 +171,6 @@ RUN \
             azure-cli \
         &&\
         echo "..."
-
-RUN \
-        echo "===> Installing (aws-cli)..." && \
-        python3 -m venv /venv/aws \
-        &&\
-        /venv/aws/bin/pip3 install --no-cache-dir --upgrade \
-            pip \
-            awscli \
-            saw \
-    &&\
-    \
-    echo "..."
 
 # #########################################################################
 #FROM alpine/helm:${HELM_VERSION} as int--helm
@@ -205,7 +193,7 @@ RUN \
     \
     echo "..."
 
-ENV PATH="/venv/az/bin:/venv/aws/bin:/venv/tools/bin:$PATH"
+ENV PATH="/venv/az/bin:/venv/tools/bin:$PATH"
 
 # #########################################################################
 # default command: display installed versions
