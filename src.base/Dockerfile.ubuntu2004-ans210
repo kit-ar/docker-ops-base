@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=kitarukops/ops-base:ubuntu1804
+ARG BASE_IMAGE=kitarukops/ops-base:ubuntu2004
 
 ARG PIP__ANSIBLE_VER="~=2.10.0"
 

@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=kitarukops/ops-base:ubuntu1804
+ARG BASE_IMAGE=kitarukops/ops-base:ubuntu2004
 
 ARG PIP__ANSIBLE_VER="~=2.10.0"
 
@@ -57,7 +57,7 @@ RUN \
     echo "..."
 
 RUN \
-        echo "===> Installing (ansible) [${PIP__ANSIBLE_VER}]..." && \
+        echo "===> Installing (ansible-base) [${PIP__ANSIBLE_VER}]..." && \
         python3 -m venv /venv/ans \
         &&\
         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
@@ -85,12 +85,32 @@ FROM final
 # the source and target location must be the same as venv relies on hardwired python path
 COPY --from=int--misc-tools /venv/ans   /venv/ans
 
+ENV PATH="/venv/ans/bin:$PATH"
+
 RUN \
+    ansible-galaxy \
+        collection install \
+            \
+            azure.azcollection \
+            community.azure \
+            amazon.aws \
+            hetzner.hcloud \
+            \
+            community.docker \
+            community.kubernetes \
+            community.mysql \
+            community.postgresql \
+            \
+            community.network \
+            community.routeros \
+            \
+            community.windows \
+            \
+    && \
+    \
     du -hd1 /venv &&\
     \
     echo "..."
-
-ENV PATH="/venv/ans/bin:$PATH"
 
 # #########################################################################
 # default command: display Ansible version
