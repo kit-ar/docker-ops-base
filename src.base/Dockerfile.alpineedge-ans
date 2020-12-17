@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=kitarukops/ops-base:alpineedge
+ARG BASE_IMAGE=kitaruk/ops-base:alpineedge
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
@@ -6,7 +6,7 @@ FROM ${BASE_IMAGE} as final
 
 LABEL maintainer="webmaster@kit-ar.com"
 
-# # ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
+# ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
 RUN \
     echo "===> Updating TLS certificates..."         && \
     apk --update --no-cache add \
@@ -36,7 +36,7 @@ RUN \
 # # #########################################################################
 # FROM final as int--misc-tools
 #
-# # From alpine 3.7 onwards, since ansible2+4+ already supports python3,
+# # From alpine 3.7 onwards, since ansible2.4+ already supports python3,
 # # we no longer install/support python2 by default.
 # # Also, we do not pretend pip will be available. Use pip3 instead.
 #
@@ -87,13 +87,13 @@ FROM final
 ## we rely on the intermediate image and the final image being the same;
 ## the source and target location must be the same as venv relies on hardwired python path
 #COPY --from=int--misc-tools /venv/ans   /venv/ans
+#
+#ENV PATH="/venv/ans/bin:$PATH"
 
 RUN \
     du -hd1 /venv &&\
     \
     echo "..."
-
-#ENV PATH="/venv/ans/bin:$PATH"
 
 # #########################################################################
 # default command: display Ansible version

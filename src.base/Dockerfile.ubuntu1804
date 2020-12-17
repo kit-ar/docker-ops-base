@@ -161,7 +161,7 @@ RUN \
     \
     echo "===> Installing (aws-cli)..." && \
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip" && \
-    unzip "/tmp/awscliv2.zip" && \
+    unzip "/tmp/awscliv2.zip" > /dev/null && \
     /aws/install && \
     rm -rf /tmp/awscliv2* /tmp/aws /aws && \
     ls -lad /tmp/aws* /aws ||true && \

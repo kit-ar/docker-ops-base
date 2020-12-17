@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=kitarukops/ops-base:alpine312
+ARG BASE_IMAGE=kitaruk/ops-base:alpine312
 
 ARG PIP__ANSIBLE_VER="~=2.10.0"
 
@@ -27,14 +27,6 @@ RUN \
 # #########################################################################
 FROM final as int--misc-tools
 
-# From alpine 3.7 onwards, since ansible2+4+ already supports python3,
-# we no longer install/support python2 by default.
-# Also, we do not pretend pip will be available. Use pip3 instead.
-
-## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
-## uncomment if really needed
-# ENV PYHELM_PIP3=pyhelm
-
 RUN \
     apk --update --no-cache add \
         --virtual build-dependencies \
@@ -48,19 +40,9 @@ RUN \
     echo "..."
 
 RUN \
-    echo "===> Installing Ansible (via PIP)..." \
-    echo "===> Installing ansible and ansible[azure] in separate steps..." \
-    echo "===> (https://github.com/ansible/ansible/issues/67255)..." \
-    echo "===> Installing azure-cli and ansible[azure] in separate virtuaenv to prevent version conflicts..." \
-    echo "===> as of 2020-02-09, we could not find any other option..." \
-    echo "===> and it is possible that the way the conflicts were handled will cause issues in the future..." \
-    && \
-    echo "..."
-
-RUN \
         echo "===> Installing (ansible-base) [${PIP__ANSIBLE_VER}]..." && \
         python3 -m venv /venv/ans \
-        &&\
+        && \
         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
             pip \
             # ansible-base${PIP__ANSIBLE_VER} \
@@ -74,14 +56,7 @@ RUN \
             ${PYHELM_PIP3} \
             \
             docker \
-            \
-        &&\
-        \
-        curl -O https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt && \
-        pip install -r requirements-azure.txt  && \
-        rm requirements-azure.txt  && \
-        ansible-galaxy collection install azure.azcollection  && \
-        \
+        && \
         echo "..."
 
 # #########################################################################
@@ -92,12 +67,12 @@ FROM final
 # the source and target location must be the same as venv relies on hardwired python path
 COPY --from=int--misc-tools /venv/ans   /venv/ans
 
+ENV PATH="/venv/ans/bin:$PATH"
+
 RUN \
     du -hd1 /venv &&\
     \
     echo "..."
-
-ENV PATH="/venv/ans/bin:$PATH"
 
 # #########################################################################
 # default command: display Ansible version

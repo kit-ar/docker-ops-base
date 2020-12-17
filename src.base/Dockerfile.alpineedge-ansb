@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=kitarukops/ops-base:alpineedge
+ARG BASE_IMAGE=kitaruk/ops-base:alpineedge
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
@@ -32,75 +32,15 @@ RUN \
             py3-boto3 \
         \
     && \
-    \
-    curl -O https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt && \
-    pip install -r requirements-azure.txt  && \
-    rm requirements-azure.txt  && \
-    ansible-galaxy collection install azure.azcollection  && \
-    \
     echo "..."
-
-# # #########################################################################
-# FROM final as int--misc-tools
-#
-# # From alpine 3.7 onwards, since ansible2+4+ already supports python3,
-# # we no longer install/support python2 by default.
-# # Also, we do not pretend pip will be available. Use pip3 instead.
-#
-# ## prob won't be needed since, on of 2020-01-09, pyhelm didn't support helm3
-# ## uncomment if really needed
-# # ENV PYHELM_PIP3=pyhelm
-# # ENV PYHELM_APK_GRPCIO=py3-grpcio@testing
-#
-# RUN \
-#     [ "${PYHELM_APK_GRPCIO}" == "" ] || echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-#
-#
-# RUN \
-#     apk --update --no-cache add \
-#         --virtual build-dependencies \
-#             python3-dev \
-#             build-base  \
-#             openssl-dev \
-#             libffi-dev \
-#             ${PYHELM_APK_GRPCIO} \
-#     && \
-#     pip3 list &&\
-#     \
-#     echo "..."
-#
-# RUN \
-#         echo "===> Installing (ansible-base) [${PIP__ANSIBLE_VER}]..." && \
-#         python3 -m venv /venv/ans \
-#         &&\
-#         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
-#             pip \
-#             # ansible-base${PIP__ANSIBLE_VER} \
-#         && \
-#         /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
-#             \
-#             \
-#             openshift \
-#             ${PYHELM_PIP3} \
-#             \
-#             \
-#         &&\
-#         echo "..."
 
 # #########################################################################
 FROM final
-
-# =========================================================================
-## we rely on the intermediate image and the final image being the same;
-## the source and target location must be the same as venv relies on hardwired python path
-#COPY --from=int--misc-tools /venv/ans   /venv/ans
 
 RUN \
     du -hd1 /venv &&\
     \
     echo "..."
-
-#ENV PATH="/venv/ans/bin:$PATH"
 
 # #########################################################################
 # default command: display Ansible version

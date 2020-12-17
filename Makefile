@@ -1,7 +1,7 @@
 # v3.0.0    2020-12-12     webmaster@kit-ar.com
 TAG_VERSION=201212a
 
-DH_ID_base=kitarukops/ops-base
+DH_ID_base=kitaruk/ops-base
 
 # .ONESHELL:
 # SHELL = bash

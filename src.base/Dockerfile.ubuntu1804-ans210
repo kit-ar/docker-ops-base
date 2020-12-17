@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=kitarukops/ops-base:ubuntu1804
+ARG BASE_IMAGE=kitaruk/ops-base:ubuntu1804
 
 ARG PIP__ANSIBLE_VER="~=2.10.0"
 
@@ -90,26 +90,6 @@ COPY --from=int--misc-tools /venv/ans   /venv/ans
 ENV PATH="/venv/ans/bin:$PATH"
 
 RUN \
-    ansible-galaxy \
-        collection install \
-            \
-            azure.azcollection \
-            community.azure \
-            amazon.aws \
-            hetzner.hcloud \
-            \
-            community.docker \
-            community.kubernetes \
-            community.mysql \
-            community.postgresql \
-            \
-            community.network \
-            community.routeros \
-            \
-            community.windows \
-            \
-    && \
-    \
     du -hd1 /venv &&\
     \
     echo "..."
