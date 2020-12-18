@@ -40,7 +40,7 @@ build-base-alpine312:                                      r--build-base-alpine3
 build-base-alpineedge-ansb:          build-base-alpineedge  r--build-base-alpineedge-ansb
 build-base-alpine312-ansb210:        build-base-alpine312   r--build-base-alpine312-ansb210
 build-base-alpine312-ans210:         build-base-alpine312   r--build-base-alpine312-ans210
-# build-base-alpine312-ans209:         build-base-alpine312   r--build-base-alpine312-ans209
+build-base-alpine312-ans209:         build-base-alpine312   r--build-base-alpine312-ans209
 # build-base-alpine311-ans209:         build-base-alpine311   r--build-base-alpine311-ans209
 
 # --------------------------------------------------------------------------
@@ -90,7 +90,7 @@ shell-base-alpine312:            r--shell-base-alpine312
 shell-base-alpineedge-ansb:      r--shell-base-alpineedge-ansb
 shell-base-alpine312-ansb210:    r--shell-base-alpine312-ansb210
 shell-base-alpine312-ans210:     r--shell-base-alpine312-ans210
-# shell-base-alpine312-ans209:     r--shell-base-alpine312-ans209
+shell-base-alpine312-ans209:     r--shell-base-alpine312-ans209
 # shell-base-alpine311-ans209:     r--shell-base-alpine311-ans209
 
 # --------------------------------------------------------------------------
@@ -118,5 +118,5 @@ test-base-alpine312:            r--test-base-alpine312$(TEST_TAG)
 test-base-alpineedge-ansb:      r--test-base-alpineedge-ansb$(TEST_TAG)
 test-base-alpine312-ansb210:    r--test-base-alpine312-ansb210$(TEST_TAG)
 test-base-alpine312-ans210:     r--test-base-alpine312-ans210$(TEST_TAG)
-# test-base-alpine312-ans209:     r--test-base-alpine312-ans209$(TEST_TAG)
+test-base-alpine312-ans209:     r--test-base-alpine312-ans209$(TEST_TAG)
 # test-base-alpine311-ans209:     r--test-base-alpine311-ans209$(TEST_TAG)

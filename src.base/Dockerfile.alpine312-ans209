@@ -1,6 +1,6 @@
 ARG BASE_IMAGE=kitaruk/ops-base:alpine312
 
-ARG PIP__ANSIBLE_VER="~=2.10.0"
+ARG PIP__ANSIBLE_VER="~=2.9.0"
 
 # #########################################################################
 FROM ${BASE_IMAGE} as final
