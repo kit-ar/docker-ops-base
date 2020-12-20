@@ -1,0 +1,116 @@
+ARG BASE_IMAGE=kitaruk/ops-base:alpine312py37
+
+ARG PIP__ANSIBLE_VER="~=2.10.0"
+
+# #########################################################################
+FROM ${BASE_IMAGE} as final
+ARG PIP__ANSIBLE_VER
+
+LABEL maintainer="webmaster@kit-ar.com"
+
+ENV PIP__ANSIBLE_VER=${PIP__ANSIBLE_VER}
+RUN \
+    echo "===> Updating TLS certificates..."         && \
+    apk --update --no-cache add \
+            ca-certificates \
+            openssl \
+    && \
+    echo "..."
+
+# RUN \
+#     echo "===> Adding Ruby 2.6.5+..."  && \
+#     apk --update --no-cache add \
+#             ruby \
+#         && \
+#     echo "..."
+
+# #########################################################################
+FROM final as int--misc-tools
+
+RUN \
+    apk --update --no-cache add \
+        --virtual build-dependencies \
+            python3-dev \
+            build-base  \
+            openssl-dev \
+            libffi-dev \
+    && \
+    pip3 list &&\
+    \
+    echo "..."
+
+RUN \
+        echo "===> Installing (ansible) [${PIP__ANSIBLE_VER}]..." && \
+        python3 -m venv /venv/ans \
+        && \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+            pip \
+            # ansible${PIP__ANSIBLE_VER} \
+        && \
+    echo "..."
+RUN \
+        find / -name "requirements*.txt" && echo "111111" && \
+        /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+            ansible${PIP__ANSIBLE_VER} \
+        bcrypt \
+        pynacl \
+        cryptography \
+    && \
+    echo "..."
+RUN \
+    find / -name "requirements*.txt" && echo "222222" && \
+    /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+        boto \
+    && \
+    echo "..."
+RUN \
+    find / -name "requirements*.txt" && echo "333333" && \
+    /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+        kubernetes \
+    && \
+    echo "..."
+RUN \
+    find / -name "requirements*.txt" && echo "444444" && \
+    /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+        docker \
+    && \
+    echo "..."
+RUN \
+    /venv/ans/bin/pip3 install --no-cache-dir --upgrade \
+        ansible-lint \
+        \
+        && \
+    find / -name "requirements*.txt" && echo "66666" && \
+        echo "..."
+
+# #########################################################################
+FROM final
+
+# =========================================================================
+# we rely on the intermediate image and the final image being the same;
+# the source and target location must be the same as venv relies on hardwired python path
+COPY --from=int--misc-tools /venv/ans   /venv/ans
+
+ENV PATH="/venv/ans/bin:$PATH"
+
+RUN \
+    du -hd1 /venv &&\
+    \
+    echo "..."
+
+# #########################################################################
+# default command: display Ansible version
+CMD \
+    ansible-playbook --version | head -n 1 && \
+    python3 --version          | head -n 1 && \
+    pip3 --version             | head -n 1 && \
+    node --version             | head -n 1 && \
+#    ruby --version             | head -n 1 && \
+    git  --version             | head -n 1 && \
+    az   --version             | head -n 1 && \
+    aws  --version             | head -n 1 && \
+    docker-compose --version   | head -n 1 && \
+    docker         --version   | head -n 1 && \
+    helm    version --client   | head -n 1 && \
+    kubectl version --client   | head -n 1 && \
+    openssl version            | head -n 1

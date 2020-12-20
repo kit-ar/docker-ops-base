@@ -1,4 +1,5 @@
 ARG BASE_IMAGE=alpine:3.11
+# ARG BASE=python:3.7-alpine3.11
 
 ARG HELM_VERSION=3.3.4
 

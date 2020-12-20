@@ -1,5 +1,7 @@
-ARG BASE_IMAGE=alpine:3.12
-# ARG BASE=python:3.7-alpine3.12
+ARG ALPINE_VERSION="3.12"
+ARG PYTHON_VERSION="3.7"
+ARG BASE_IMAGE=python:3.7-alpine3.12
+# https://github.com/ansible-collections/azure/files/5712161/Dockerfile.zip
 
 ARG HELM_VERSION=3.3.4
 
@@ -7,8 +9,6 @@ ARG HELM_VERSION=3.3.4
 FROM ${BASE_IMAGE} as final
 
 LABEL maintainer="webmaster@kit-ar.com"
-
-# golang is not installed in the alpine version
 
 RUN \
     echo "===> Updating TLS certificates..."         && \
@@ -114,12 +114,12 @@ RUN \
     echo "..."
 
 RUN \
-    echo "===> Adding Python runtime..."  && \
-    apk --update --no-cache add \
-            python3 \
-            py3-pip \
-        && \
-    \
+    # echo "===> Adding Python runtime..."  && \
+    # apk --update --no-cache add \
+    #         python3 \
+    #         py3-pip \
+    #     && \
+    # \
     echo "===> Configuring Python and PIP..."  && \
     pip3 list && \
     pip3 install --no-cache-dir --upgrade --upgrade-strategy eager \
@@ -149,6 +149,11 @@ RUN \
             openssl-dev \
             libffi-dev \
     && \
+    # apk --update --no-cache add \
+    #         ibintl \
+    #         icu-libs \
+    #         libc6-compat \
+    # && \
     pip3 list &&\
     \
     echo "..."
@@ -195,6 +200,16 @@ RUN \
     echo "..."
 
 ENV PATH="/venv/az/bin:/venv/tools/bin:$PATH"
+
+# # install kubectl based on how its shown here: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+# RUN curl -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
+#  && chmod +x /usr/local/bin/kubectl
+
+# # install Helm based on how its shown here https://helm.sh/docs/intro/install/#from-script
+# RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
+#  && chmod 755 get_helm.sh \
+#  && ./get_helm.sh \
+#  && rm -f ./get_helm.sh
 
 # #########################################################################
 # default command: display installed versions
